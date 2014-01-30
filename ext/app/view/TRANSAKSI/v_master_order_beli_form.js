@@ -11,6 +11,17 @@ Ext.define('INVENT.view.TRANSAKSI.v_master_order_beli_form', {
     autoScroll	: true,
     
     initComponent: function(){
+		/* STORE start */
+		var bayar_store = Ext.create('Ext.data.Store', {
+    	    fields: ['value', 'display'],
+    	    data : [
+    	        {"value":"Tunai", "display":"Tunai"},
+    	        {"value":"Kredit", "display":"Kredit"},
+    	        {"value":"Konsinyasi", "display":"Konsinyasi"}
+    	    ]
+    	});
+		/* STORE end */
+		
     	/*
 		 * Deklarasi variable setiap field
 		 */
@@ -19,25 +30,61 @@ Ext.define('INVENT.view.TRANSAKSI.v_master_order_beli_form', {
 			name: 'order_id', /* column name of table */
 			fieldLabel: 'order_id',
 			allowBlank: false /* jika primary_key */,
-			maxLength: 11 /* length of column name */});
-		var order_no_field = Ext.create('Ext.form.field.TextArea', {
+			maxLength: 11, /* length of column name */
+			value: 0,
+			hidden: true
+		});
+		var order_no_field = Ext.create('Ext.form.field.Text', {
+			itemId: 'order_no_field',
 			name: 'order_no', /* column name of table */
-			fieldLabel: 'order_no',
+			fieldLabel: 'No. OP',
 			maxLength: 50 /* length of column name */
 		});
-		var order_supplier_field = Ext.create('Ext.form.field.Number', {
+		var order_supplier_field = Ext.create('Ext.form.field.ComboBox', {
+			itemId: 'order_supplier_field',
 			name: 'order_supplier', /* column name of table */
-			fieldLabel: 'order_supplier',
-			maxLength: 11 /* length of column name */
+			fieldLabel: 'Supplier <font color=red>*</font>',
+			allowBlank: false,
+			store: 'INVENT.store.s_supplier',
+			queryMode: 'remote',
+			displayField:'supplier_nama',
+			valueField: 'supplier_id',
+	        typeAhead: false,
+	        loadingText: 'Searching...',
+			//pageSize:15,
+	        hideTrigger: false,
+	        tpl: Ext.create('Ext.XTemplate',
+                '<tpl for=".">',
+                    '<div class="x-boundlist-item">[<b>{supplier_id}</b>] - {supplier_nama}</div>',
+                '</tpl>'
+            ),
+            // template for the content inside text field
+            displayTpl: Ext.create('Ext.XTemplate',
+                '<tpl for=".">',
+                	'[{supplier_id}] - {supplier_nama}',
+                '</tpl>'
+            ),
+	        itemSelector: 'div.search-item',
+			triggerAction: 'all',
+			lazyRender:true,
+			listClass: 'x-combo-list-small',
+			anchor:'100%',
+			forceSelection:true
 		});
 		var order_tanggal_field = Ext.create('Ext.form.field.Date', {
+			itemId: 'order_tanggal_field',
 			name: 'order_tanggal', /* column name of table */
-			format: 'Y-m-d',
-			fieldLabel: 'order_tanggal'
+			format: 'l, j F Y',
+			submitFormat: 'Y-m-d H:i:s',
+			fieldLabel: 'Tanggal'
 		});
-		var order_carabayar_field = Ext.create('Ext.form.field.Text', {
+		var order_carabayar_field = Ext.create('Ext.form.field.ComboBox', {
 			name: 'order_carabayar', /* column name of table */
-			fieldLabel: 'order_carabayar'
+			fieldLabel: 'Cara Bayar',
+			store: bayar_store,
+			queryMode: 'local',
+			displayField: 'display',
+			valueField: 'value'
 		});
 		var order_diskon_field = Ext.create('Ext.form.field.Text', {
 			name: 'order_diskon', /* column name of table */
@@ -48,34 +95,100 @@ Ext.define('INVENT.view.TRANSAKSI.v_master_order_beli_form', {
 			name: 'order_cashback', /* column name of table */
 			fieldLabel: 'order_cashback'
 		});
-		var order_totalbiaya_field = Ext.create('Ext.form.field.Text', {
+		var order_totalbiaya_cffield = Ext.create('Ext.ux.form.NumericField', {
+			itemId: 'order_totalbiaya_cffield',
 			name: 'order_totalbiaya', /* column name of table */
-			fieldLabel: 'order_totalbiaya'
+			fieldLabel: 'TOTAL',
+			useThousandSeparator: true,
+			decimalPrecision: 2,
+			alwaysDisplayDecimals: true,
+			currencySymbol: 'Rp',
+			thousandSeparator: '.',
+			decimalSeparator: ',',
+			enableKeyEvents: true,
+			readOnly: true,
+			fieldStyle: 'font-size: 12pt;font-weight: bold;text-align:right;',
+			labelStyle: 'font-size: 12pt;font-weight: bold;'
 		});
 		var order_ttlbiaya_lain2_field = Ext.create('Ext.form.field.Text', {
 			name: 'order_ttlbiaya_lain2', /* column name of table */
 			fieldLabel: 'order_ttlbiaya_lain2'
 		});
-		var order_dp_field = Ext.create('Ext.form.field.Text', {
-			name: 'order_dp', /* column name of table */
-			fieldLabel: 'order_dp'
+		var order_dp_cffield = Ext.create('Ext.ux.form.NumericField', {
+			itemId: 'order_dp_field',
+			name: 'order_dp',
+			fieldLabel: 'Uang Muka',
+			useThousandSeparator: true,
+			decimalPrecision: 2,
+			alwaysDisplayDecimals: true,
+			currencySymbol: 'Rp',
+			thousandSeparator: '.',
+			decimalSeparator: ',',
+			enableKeyEvents: true,
+			readOnly: false,
+			fieldStyle: 'font-size: 10pt;font-weight: bold;text-align:right;',
+			labelStyle: 'font-size: 10pt;font-weight: bold;'
 		});
-		var order_sisa_bayar_field = Ext.create('Ext.form.field.Text', {
+		var order_sisa_bayar_field = Ext.create('Ext.ux.form.NumericField', {
+			itemId: 'order_sisa_bayar_field',
 			name: 'order_sisa_bayar', /* column name of table */
-			fieldLabel: 'order_sisa_bayar'
+			fieldLabel: 'Jumlah Hutang',
+			useThousandSeparator: true,
+			decimalPrecision: 2,
+			alwaysDisplayDecimals: true,
+			currencySymbol: 'Rp',
+			thousandSeparator: '.',
+			decimalSeparator: ',',
+			enableKeyEvents: true,
+			readOnly: true,
+			fieldStyle: 'font-size: 10pt;font-weight: bold;text-align:right;',
+			labelStyle: 'font-size: 10pt;font-weight: bold;'
 		});
 		var order_keterangan_field = Ext.create('Ext.form.field.TextArea', {
 			name: 'order_keterangan', /* column name of table */
-			fieldLabel: 'order_keterangan',
+			fieldLabel: 'Keterangan',
 			maxLength: 500 /* length of column name */
 		});
-		var order_status_acc_field = Ext.create('Ext.form.field.Text', {
-			name: 'order_status_acc', /* column name of table */
-			fieldLabel: 'order_status_acc'
+		var order_status_acc_field = Ext.create('Ext.form.RadioGroup', {
+			itemId: 'order_status_acc_field',
+			flex: 1,
+			layout: {
+				autoFlex: false
+			},
+			defaults: {
+				name: 'order_status_acc',
+				margin: '0 15 0 0'
+			},
+			items: [{
+				inputValue: 'Terbuka',
+				boxLabel: 'Terbuka',
+				checked: true
+			}, {
+				inputValue: 'Tertutup',
+				boxLabel: 'Tertutup'
+			}]
 		});
-		var order_status_field = Ext.create('Ext.form.field.Text', {
-			name: 'order_status', /* column name of table */
-			fieldLabel: 'order_status'
+		var order_status_field = Ext.create('Ext.form.RadioGroup', {
+			itemId: 'order_status_field',
+			flex: 1,
+			layout: {
+				autoFlex: false
+			},
+			defaults: {
+				name: 'order_status',
+				margin: '0 15 0 0'
+			},
+			items: [{
+				inputValue: 'Terbuka',
+				boxLabel: 'Terbuka',
+				checked: true
+			}, {
+				inputValue: 'Tertutup',
+				boxLabel: 'Tertutup'
+			}, {
+				inputValue: 'Batal',
+				boxLabel: 'Batal'
+			}]
 		});
 		var order_creator_field = Ext.create('Ext.form.field.TextArea', {
 			name: 'order_creator', /* column name of table */
@@ -101,6 +214,28 @@ Ext.define('INVENT.view.TRANSAKSI.v_master_order_beli_form', {
 			name: 'order_revised', /* column name of table */
 			fieldLabel: 'order_revised',
 			maxLength: 11 /* length of column name */
+		});
+		
+		/* GRID detail start */
+		var detail_order_beli_grid = Ext.create('INVENT.view.TRANSAKSI.v_detail_order_beli');
+		/* GRID detail end */
+		
+		var detail_tabs = Ext.create('Ext.tab.Panel', {
+			plain: true,
+			activeTab: 0,
+			defaults :{
+				bodyPadding: 0
+			},
+			items: [{
+				itemId: 'beli_detail_order_beli',
+				title: 'Detail Pembelian',
+				items: [detail_order_beli_grid],
+				listeners: {
+					deactivate: function(thisme, e){
+						thisme.items.items[0].rowEditing.cancelEdit();
+					}
+				}
+			}]
 		});
 		
 		var statusbar_info = Ext.create('Ext.Component', {
@@ -167,23 +302,88 @@ Ext.define('INVENT.view.TRANSAKSI.v_master_order_beli_form', {
 					me.hasBeenDirty = true;
 				}
 			},
-            items: [order_id_field,order_no_field,order_supplier_field,order_tanggal_field,order_carabayar_field,order_diskon_field,order_cashback_field,order_totalbiaya_field,order_ttlbiaya_lain2_field,order_dp_field,order_sisa_bayar_field,order_keterangan_field,order_status_acc_field,order_status_field,order_creator_field,order_date_create_field,order_update_field,order_date_update_field,order_revised_field],
+            items: [{
+				xtype: 'form',
+				bodyStyle: 'border-width: 0px;',
+				layout: 'column',
+				items: [{
+					//left column
+					xtype: 'form',
+					bodyStyle: 'border-width: 0px;',
+					columnWidth:0.49,
+					items: [
+						order_id_field,order_no_field,order_tanggal_field,order_supplier_field
+						,order_carabayar_field,order_keterangan_field
+					]
+				} ,{
+					xtype: 'splitter',
+					columnWidth:0.02
+				} ,{
+					//right column
+					xtype: 'form',
+					bodyStyle: 'border-width: 0px;',
+					columnWidth:0.49,
+					items: [
+						{
+							xtype: 'fieldcontainer',
+							fieldLabel: 'Status Acc?',
+							layout: 'hbox',
+							defaultType: 'textfield',
+							defaults: {
+								hideLabel: true
+							},
+							items: [order_status_acc_field]
+						},{
+							xtype: 'fieldcontainer',
+							fieldLabel: 'Status?',
+							layout: 'hbox',
+							defaultType: 'textfield',
+							defaults: {
+								hideLabel: true
+							},
+							items: [order_status_field]
+						},order_totalbiaya_cffield,order_dp_cffield,order_sisa_bayar_field
+					]
+				}]
+			}, detail_tabs],
 			
 	        buttons: [statusbar_info, {
-                iconCls: 'icon-save',
-                itemId: 'save',
-                text: 'Save',
+                iconCls: 'icon-print',
+                itemId: 'printall',
+                text: 'Print Only',
                 disabled: true,
-                action: 'save'
+                action: 'printall'
+            }, {
+                iconCls: 'icon-save',
+                itemId: 'saveprintall',
+                text: 'Update and Print',
+                disabled: true,
+                action: 'saveprintall'
             }, {
                 iconCls: 'icon-add',
-				itemId: 'create',
+                itemId: 'createprintall',
+                text: 'Create and Print',
+                disabled: true,
+                action: 'createprintall'
+            }, {
+				xtype: 'splitter'
+			}, '-', {
+				xtype: 'splitter'
+			}, {
+                iconCls: 'icon-save',
+                itemId: 'saveall',
+                text: 'Update',
+                disabled: true,
+                action: 'saveall'
+            }, {
+                iconCls: 'icon-add',
+				itemId: 'createall',
                 text: 'Create',
-                action: 'create'
+                action: 'createall'
             }, {
                 iconCls: 'icon-reset',
                 text: 'Cancel',
-                action: 'cancel'
+                action: 'cancelall'
             }]
         });
         

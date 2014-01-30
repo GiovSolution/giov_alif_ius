@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<title>CSS Tables</title>
+	
+	<style type="text/css">
+	@media screen{
+		body {
+			font: normal 11px auto "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+			color: #4f6b72;
+			background: #E6EAE9;
+		}
+	}
+	@media print{
+		body {
+			font: normal 11px auto "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+		}
+	}
+	
+	a {
+		color: #c75f3e;
+	}
+	
+	#mytable {
+		width: 700px;
+		padding: 0;
+		margin: 0;
+	}
+	
+	caption {
+		padding: 0 0 5px 0;
+		width: 700px;	 
+		font: italic 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+		text-align: right;
+	}
+	
+	th {
+		font: bold 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+		color: #4f6b72;
+		border-right: 1px solid #C1DAD7;
+		border-bottom: 1px solid #C1DAD7;
+		border-top: 1px solid #C1DAD7;
+		letter-spacing: 2px;
+		text-transform: uppercase;
+		text-align: left;
+		padding: 6px 6px 6px 12px;
+		background: #CAE8EA url(./assets/images/bg_header.jpg) no-repeat;
+	}
+	
+	th.nobg {
+		border-top: 0;
+		border-left: 0;
+		border-right: 1px solid #C1DAD7;
+		background: none;
+	}
+	
+	td {
+		border-right: 1px solid #C1DAD7;
+		border-bottom: 1px solid #C1DAD7;
+		background: #fff;
+		padding: 6px 6px 6px 12px;
+		color: #4f6b72;
+		font: normal 12px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+	}
+	
+	td.alt {
+		background: #F5FAFA;
+		color: #797268;
+	}
+	
+	th.spec {
+		border-left: 1px solid #C1DAD7;
+		border-top: 0;
+		background: #fff url(./assets/images/bullet1.gif) no-repeat;
+		font: bold 10px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+	}
+	
+	th.specalt {
+		border-left: 1px solid #C1DAD7;
+		border-top: 0;
+		background: #f5fafa url(./assets/images/bullet2.gif) no-repeat;
+		font: bold 10px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+		color: #797268;
+	}
+	</style>
+</head>
+
+<body>
+<table id="mytable" cellspacing="0" summary="YMPI - supplier">
+<caption>Table: supplier </caption>
+  <tr>
+	<th scope="col" abbr="supplier_id" class="nobg">supplier_id</th><th scope="col" abbr="supplier_cabang">supplier_cabang</th><th scope="col" abbr="supplier_nama">supplier_nama</th><th scope="col" abbr="supplier_alamat">supplier_alamat</th><th scope="col" abbr="supplier_kota">supplier_kota</th><th scope="col" abbr="supplier_kodepos">supplier_kodepos</th><th scope="col" abbr="supplier_propinsi">supplier_propinsi</th><th scope="col" abbr="supplier_negara">supplier_negara</th><th scope="col" abbr="supplier_notelp">supplier_notelp</th><th scope="col" abbr="supplier_notelp2">supplier_notelp2</th><th scope="col" abbr="supplier_nofax">supplier_nofax</th><th scope="col" abbr="supplier_email">supplier_email</th><th scope="col" abbr="supplier_website">supplier_website</th><th scope="col" abbr="supplier_cp">supplier_cp</th><th scope="col" abbr="supplier_contact_cp">supplier_contact_cp</th><th scope="col" abbr="supplier_akun">supplier_akun</th><th scope="col" abbr="supplier_keterangan">supplier_keterangan</th><th scope="col" abbr="supplier_aktif">supplier_aktif</th><th scope="col" abbr="supplier_creator">supplier_creator</th><th scope="col" abbr="supplier_date_create">supplier_date_create</th><th scope="col" abbr="supplier_update">supplier_update</th><th scope="col" abbr="supplier_date_update">supplier_date_update</th><th scope="col" abbr="supplier_revised">supplier_revised</th>  </tr>
+  <tr><th scope="row" abbr="47" class="specalt">47</th><td class="alt">2</td><td class="alt">asdfasdf</td><td class="alt"></td><td class="alt"></td><td class="alt"></td><td class="alt"></td><td class="alt"></td><td class="alt"></td><td class="alt"></td><td class="alt"></td><td class="alt"></td><td class="alt"></td><td class="alt"></td><td class="alt"></td><td class="alt"></td><td class="alt"></td><td class="alt">1</td><td class="alt"></td><td class="alt"></td><td class="alt"></td><td class="alt"></td><td class="alt"></td><tr/><tr><th scope="row" abbr="48" class="spec">48</th><td>2</td><td>dsgfdsfsdf</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>1</td><td></td><td></td><td></td><td></td><td></td><tr/></table>
+</body>
+</html>

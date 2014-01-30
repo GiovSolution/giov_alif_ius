@@ -2,7 +2,7 @@ Ext.define('INVENT.controller.DETAIL_ORDER_BELI',{
 	extend: 'Ext.app.Controller',
 	views: ['TRANSAKSI.v_detail_order_beli'],
 	models: ['m_detail_order_beli'],
-	stores: ['s_detail_order_beli'],
+	stores: ['s_detail_order_beli','INVENT.store.s_produk'],
 	
 	requires: ['Ext.ModelManager'],
 	

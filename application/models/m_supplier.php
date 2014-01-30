@@ -24,12 +24,28 @@ class M_supplier extends CI_Model{
 	 * @return json
 	 */
 	function getAll($start, $page, $limit){
-		$query  = $this->db->limit($limit, $start)->order_by('supplier_id', 'ASC')->get('supplier')->result();
-		$total  = $this->db->get('supplier')->num_rows();
+		//$query  = $this->db->limit($limit, $start)->order_by('supplier_id', 'ASC')->get('supplier')->result();
+		$select	= "SELECT supplier_id,supplier_cabang,supplier_nama,supplier_alamat
+			,supplier_kota,supplier_kodepos,supplier_propinsi,supplier_negara,supplier_notelp
+			,supplier_notelp2,supplier_nofax,supplier_email,supplier_website,supplier_cp
+			,supplier_contact_cp,supplier_akun,supplier_keterangan
+			,IF(supplier_aktif = 'Aktif', 1, 0) AS supplier_aktif
+			,supplier_creator,supplier_date_create,supplier_update,supplier_date_update
+			,supplier_revised";
+		$selecttotal	= "SELECT COUNT(*) AS total";
+		$from			= " FROM supplier";
+		$orderby		= " ORDER BY supplier_id ASC";
+		$limit 			= " LIMIT ".$start.",".$limit;
+		
+		$sql			= $select.$from.$orderby.$limit;
+		$sqltotal		= $selecttotal.$from;
+		
+		$result = $this->db->query($sql)->result();
+		$total  = $this->db->query($sqltotal)->row()->total;
 		
 		$data   = array();
-		foreach($query as $result){
-			$data[] = $result;
+		foreach($result as $row){
+			$data[] = $row;
 		}
 		
 		$json	= array(

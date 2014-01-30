@@ -1,9 +1,9 @@
-Ext.define('INVENT.view.TRANSAKSI.MASTER_ORDER_BELI', {
+Ext.define('INVENT.view.MASTER.PRODUK', {
 	extend: 'Ext.tab.Panel',
 	
-	alias	: 'widget.MASTER_ORDER_BELI',
+	alias	: 'widget.PRODUK',
 	
-	title	: 'Order Pembelian',
+	title	: 'produk',
 	margins: 0,
 	tabPosition: 'right',
 	activeTab: 0,
@@ -11,9 +11,9 @@ Ext.define('INVENT.view.TRANSAKSI.MASTER_ORDER_BELI', {
 	initComponent: function(){
 		Ext.apply(this, {
             items: [{
-				xtype	: 'v_master_order_beli'
+				xtype	: 'v_produk'
 			}, {
-				xtype: 'v_master_order_beli_form',
+				xtype: 'v_produk_form',
 				disabled: true
 			}]
         });

@@ -2,21 +2,54 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 	extend: 'Ext.grid.Panel',
 	requires: ['INVENT.store.s_detail_order_beli'],
 	
-	title		: 'detail_order_beli',
+	//title		: 'detail_order_beli',
 	itemId		: 'v_detail_order_beli',
 	alias       : 'widget.v_detail_order_beli',
 	store 		: 's_detail_order_beli',
 	columnLines : true,
-	frame		: true,
+	//frame		: true,
+	forceFit	: true,
 	
 	margin		: 0,
 	selectedIndex: -1,
+	minHeight	: 170,
+	
+	rowediting_status: 'undefined',
 	
 	initComponent: function(){
-	
+		var me = this;
+		
 		var dorder_id_field = Ext.create('Ext.form.field.Number', {
 			allowBlank : false,
 			maxLength: 11 /* length of column name */
+		});
+		var produk_id_field = Ext.create('Ext.form.field.ComboBox', {
+			store: 'INVENT.store.s_produk',
+			queryMode: 'remote',
+			displayField:'produk_nama',
+			valueField: 'produk_id',
+	        typeAhead: false,
+	        loadingText: 'Searching...',
+			//pageSize:15,
+	        hideTrigger: false,
+			allowBlank: false,
+	        tpl: Ext.create('Ext.XTemplate',
+                '<tpl for=".">',
+                    '<div class="x-boundlist-item">[<b>{produk_id}</b>] - {produk_nama}</div>',
+                '</tpl>'
+            ),
+            // template for the content inside text field
+            displayTpl: Ext.create('Ext.XTemplate',
+                '<tpl for=".">',
+                	'[{produk_id}] - {produk_nama}',
+                '</tpl>'
+            ),
+	        itemSelector: 'div.search-item',
+			triggerAction: 'query',
+			lazyRender:true,
+			listClass: 'x-combo-list-small',
+			anchor:'100%',
+			forceSelection:true
 		});
 		
 		this.rowEditing = Ext.create('Ext.grid.plugin.RowEditing', {
@@ -25,93 +58,71 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 			listeners: {
 				'beforeedit': function(editor, e){
 					if(! (/^\s*$/).test(e.record.data.dorder_id) ){
-						
 						dorder_id_field.setReadOnly(true);
 					}else{
-						
 						dorder_id_field.setReadOnly(false);
 					}
 					
 				},
 				'canceledit': function(editor, e){
-					if((/^\s*$/).test(e.record.data.dorder_id) ){
+					me.rowediting_status = 'afterediting';
+					if (! produk_id_field.findRecordByValue(produk_id_field.getValue())) {
 						editor.cancelEdit();
-						var sm = e.grid.getSelectionModel();
-						e.store.remove(sm.getSelection());
+						e.store.removeAt(e.rowIdx);
 					}
+					
 				},
 				'validateedit': function(editor, e){
 				},
 				'afteredit': function(editor, e){
-					var me = this;
-					if((/^\s*$/).test(e.record.data.dorder_id) ){
-						Ext.Msg.alert('Peringatan', 'Kolom "dorder_id" tidak boleh kosong.');
-						return false;
-					}
-					/* e.store.sync();
-					return true; */
-					var jsonData = Ext.encode(e.record.data);
-					
-					Ext.Ajax.request({
-						method: 'POST',
-						url: 'c_detail_order_beli/save',
-						params: {data: jsonData},
-						success: function(response){
-							e.store.reload({
-								callback: function(){
-									var newRecordIndex = e.store.findBy(
-										function(record, id) {
-											if (parseFloat(record.get('dorder_id')) === e.record.data.dorder_id) {
-												return true;
-											}
-											return false;
-										}
-									);
-									/* me.grid.getView().select(recordIndex); */
-									me.grid.getSelectionModel().select(newRecordIndex);
-								}
-							});
-						}
-					});
+					me.rowediting_status = 'afterediting';
+					me.down('#btncreate').fireEvent('click');
 					return true;
 				}
 			}
 		});
 		
 		this.columns = [
+			Ext.create('Ext.grid.RowNumberer'),
 			{
 				header: 'dorder_id',
 				dataIndex: 'dorder_id',
 				field: dorder_id_field
-			},{
+			}/*,{
 				header: 'dorder_master',
 				dataIndex: 'dorder_master',
 				field: {xtype: 'numberfield'}
-			},{
-				header: 'dorder_produk',
+			}*/,{
+				header: 'Produk',
 				dataIndex: 'dorder_produk',
+				width: 319,
+				style: 'text-align:center',
+				renderer: function(value, metaData, record, rowIndex, colIndex, store){
+					var data = record.data;
+					return '['+data.dorder_produk+'] - '+data.dorder_produk;
+				},
+				field: produk_id_field
+			},{
+				header: 'Satuan',
+				dataIndex: 'dorder_satuan',
 				field: {xtype: 'numberfield'}
 			},{
-				header: 'dorder_satuan',
-				dataIndex: 'dorder_satuan',
-				field: {xtype: 'textarea'}
-			},{
-				header: 'dorder_jumlah',
+				header: 'Jumlah',
 				dataIndex: 'dorder_jumlah',
 				field: {xtype: 'numberfield'}
 			},{
-				header: 'dorder_harga',
+				header: 'Harga(Rp)',
 				dataIndex: 'dorder_harga',
 				field: {xtype: 'textfield'}
 			},{
-				header: 'dorder_diskon',
+				header: 'Diskon(%)',
 				dataIndex: 'dorder_diskon',
 				field: {xtype: 'textfield'}
-			},{
+			}/*,{
 				header: 'dorder_harga_log',
 				dataIndex: 'dorder_harga_log',
 				field: {xtype: 'textfield'}
-			}];
+			}*/];
 		this.plugins = [this.rowEditing];
 		this.dockedItems = [
 			Ext.create('Ext.toolbar.Toolbar', {
@@ -154,18 +165,25 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 						action	: 'print'
 					}]
 				}]
-			}),
+			})/*,
 			{
 				xtype: 'pagingtoolbar',
 				store: 's_detail_order_beli',
 				dock: 'bottom',
 				displayInfo: true
-			}
+			}*/
 		];
 		this.callParent(arguments);
 		
 		this.on('itemclick', this.gridSelection);
 		this.getView().on('refresh', this.refreshSelection, this);
+		this.on('beforeselect', function(thisme, record, index, eOpts){
+			if (me.rowediting_status == 'editing') {
+				return false;
+			}else{
+				return true;
+			}
+		});
 	},
 	
 	gridSelection: function(me, record, item, index, e, eOpts){

@@ -3,7 +3,7 @@ Ext.define('INVENT.view.MASTER.SUPPLIER', {
 	
 	alias	: 'widget.SUPPLIER',
 	
-	title	: 'supplier',
+	title	: 'Daftar Supplier',
 	margins: 0,
 	tabPosition: 'right',
 	activeTab: 0,

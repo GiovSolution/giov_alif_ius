@@ -1,11 +1,11 @@
-Ext.define('INVENT.view.MASTER.v_supplier', {
+Ext.define('INVENT.view.MASTER.v_produk', {
 	extend: 'Ext.grid.Panel',
-	requires: ['INVENT.store.s_supplier'],
+	requires: ['INVENT.store.s_produk'],
 	
-	title		: 'supplier',
-	itemId		: 'Listsupplier',
-	alias       : 'widget.Listsupplier',
-	store 		: 's_supplier',
+	title		: 'produk',
+	itemId		: 'v_produk',
+	alias       : 'widget.v_produk',
+	store 		: 's_produk',
 	columnLines : true,
 	frame		: false,
 	
@@ -15,63 +15,71 @@ Ext.define('INVENT.view.MASTER.v_supplier', {
 	initComponent: function(){		
 		this.columns = [
 			{
-				header: 'supplier_id',
-				dataIndex: 'supplier_id',
-				hidden: true
+				header: 'produk_id',
+				dataIndex: 'produk_id'
 			},{
-				header: 'Cabang',
-				dataIndex: 'supplier_cabang'
+				header: 'produk_kode',
+				dataIndex: 'produk_kode'
 			},{
-				header: 'Nama',
-				dataIndex: 'supplier_nama'
+				header: 'produk_group',
+				dataIndex: 'produk_group'
 			},{
-				header: 'Alamat',
-				dataIndex: 'supplier_alamat'
+				header: 'produk_kategori',
+				dataIndex: 'produk_kategori'
 			},{
-				header: 'Kota',
-				dataIndex: 'supplier_kota'
+				header: 'produk_nama',
+				dataIndex: 'produk_nama'
 			},{
-				header: 'Kode Pos',
-				dataIndex: 'supplier_kodepos'
+				header: 'produk_satuan',
+				dataIndex: 'produk_satuan'
 			},{
-				header: 'Propinsi',
-				dataIndex: 'supplier_propinsi'
+				header: 'produk_harga',
+				dataIndex: 'produk_harga'
 			},{
-				header: 'Negara',
-				dataIndex: 'supplier_negara'
+				header: 'produk_volume',
+				dataIndex: 'produk_volume'
 			},{
-				header: 'No. Telp',
-				dataIndex: 'supplier_notelp'
+				header: 'produk_jenis',
+				dataIndex: 'produk_jenis'
 			},{
-				header: 'No. Telp 2',
-				dataIndex: 'supplier_notelp2'
+				header: 'produk_keterangan',
+				dataIndex: 'produk_keterangan'
 			},{
-				header: 'No. Fax',
-				dataIndex: 'supplier_nofax'
+				header: 'produk_bpom',
+				dataIndex: 'produk_bpom'
 			},{
-				header: 'Email',
-				dataIndex: 'supplier_email'
+				header: 'produk_aktif',
+				dataIndex: 'produk_aktif'
 			},{
-				header: 'Website',
-				dataIndex: 'supplier_website'
+				header: 'produk_saldo_awal',
+				dataIndex: 'produk_saldo_awal'
 			},{
-				header: 'CP',
-				dataIndex: 'supplier_cp'
+				header: 'produk_nilai_saldo_awal',
+				dataIndex: 'produk_nilai_saldo_awal'
 			},{
-				header: 'No. Telp CP',
-				dataIndex: 'supplier_contact_cp'
+				header: 'produk_tgl_nilai_saldo_awal',
+				dataIndex: 'produk_tgl_nilai_saldo_awal',
+				renderer: Ext.util.Format.dateRenderer('d M, Y')
 			},{
-				header: 'Akun',
-				dataIndex: 'supplier_akun'
+				header: 'produk_creator',
+				dataIndex: 'produk_creator'
 			},{
-				header: 'Keterangan',
-				dataIndex: 'supplier_keterangan'
+				header: 'produk_date_create',
+				dataIndex: 'produk_date_create',
+				renderer: Ext.util.Format.dateRenderer('d M, Y')
 			},{
-				xtype: 'checkcolumn',
-				header: 'Aktif?',
-				dataIndex: 'supplier_aktif',
-				width: 100,
-				processEvent: function(){return false;}
+				header: 'produk_update',
+				dataIndex: 'produk_update'
+			},{
+				header: 'produk_aktif_cabang',
+				dataIndex: 'produk_aktif_cabang'
+			},{
+				header: 'produk_date_update',
+				dataIndex: 'produk_date_update',
+				renderer: Ext.util.Format.dateRenderer('d M, Y')
+			},{
+				header: 'produk_revised',
+				dataIndex: 'produk_revised'
 			}];
 		this.dockedItems = [
 			Ext.create('Ext.toolbar.Toolbar', {
@@ -117,7 +125,7 @@ Ext.define('INVENT.view.MASTER.v_supplier', {
 			}),
 			{
 				xtype: 'pagingtoolbar',
-				store: 's_supplier',
+				store: 's_produk',
 				dock: 'bottom',
 				displayInfo: true
 			}

@@ -2,7 +2,7 @@ Ext.define('INVENT.controller.MASTER_ORDER_BELI',{
 	extend: 'Ext.app.Controller',
 	views: ['TRANSAKSI.v_master_order_beli','TRANSAKSI.v_master_order_beli_form'],
 	models: ['m_master_order_beli'],
-	stores: ['s_master_order_beli'],
+	stores: ['s_master_order_beli','INVENT.store.s_supplier'],
 	
 	requires: ['Ext.ModelManager'],
 	
@@ -14,10 +14,19 @@ Ext.define('INVENT.controller.MASTER_ORDER_BELI',{
 		selector: 'v_master_order_beli_form'
 	}, {
 		ref: 'SaveBtnForm',
-		selector: 'v_master_order_beli_form #save'
+		selector: 'v_master_order_beli_form #saveall'
 	}, {
 		ref: 'CreateBtnForm',
-		selector: 'v_master_order_beli_form #create'
+		selector: 'v_master_order_beli_form #createall'
+	}, {
+		ref: 'SavePrintBtnForm',
+		selector: 'v_master_order_beli_form #saveprintall'
+	}, {
+		ref: 'CreatePrintBtnForm',
+		selector: 'v_master_order_beli_form #createprintall'
+	}, {
+		ref: 'PrintBtnForm',
+		selector: 'v_master_order_beli_form #printall'
 	}, {
 		ref: 'MASTER_ORDER_BELI',
 		selector: 'MASTER_ORDER_BELI'
@@ -52,13 +61,13 @@ Ext.define('INVENT.controller.MASTER_ORDER_BELI',{
 			'v_master_order_beli button[action=print]': {
 				click: this.printRecords
 			},
-			'v_master_order_beli_form button[action=save]': {
+			'v_master_order_beli_form button[action=saveall]': {
 				click: this.saveV_master_order_beli_form
 			},
-			'v_master_order_beli_form button[action=create]': {
+			'v_master_order_beli_form button[action=createall]': {
 				click: this.saveV_master_order_beli_form
 			},
-			'v_master_order_beli_form button[action=cancel]': {
+			'v_master_order_beli_form button[action=cancelall]': {
 				click: this.cancelV_master_order_beli_form
 			}
 		});
@@ -170,11 +179,24 @@ Ext.define('INVENT.controller.MASTER_ORDER_BELI',{
 	},
 	
 	createRecord: function(){
-		var getV_master_order_beli	= this.getV_master_order_beli();
-		var getV_master_order_beli_form= this.getV_master_order_beli_form(),
-			form			= getV_master_order_beli_form.getForm();
-		var getSaveBtnForm	= this.getSaveBtnForm();
-		var getCreateBtnForm	= this.getCreateBtnForm();
+		var getV_master_order_beli		= this.getV_master_order_beli();
+		var getV_master_order_beli_form	= this.getV_master_order_beli_form(),
+			form						= getV_master_order_beli_form.getForm();
+		var getSaveBtnForm				= this.getSaveBtnForm();
+		var getCreateBtnForm			= this.getCreateBtnForm();
+		var getPrintBtnForm				= this.getPrintBtnForm();
+		var getCreatePrintBtnForm		= this.getCreatePrintBtnForm();
+		var order_status_field 			= getV_master_order_beli_form.down('#order_status_field').items.items;
+		
+		/* Create No. Faktur */
+		var datenow = new Date();
+		var getdate = datenow.getDate();
+		var getmonth = datenow.getMonth() + 1;
+		var getyear = datenow.getFullYear();
+		var gethour = datenow.getHours();
+		var getminute = datenow.getMinutes();
+		var now = Ext.Date.format(new Date(), 'Ymd.Hi');
+		var nofaktur = 'OP'+now;
 		
 		/* grid-panel */
 		getV_master_order_beli.setDisabled(true);
@@ -182,11 +204,21 @@ Ext.define('INVENT.controller.MASTER_ORDER_BELI',{
 		/* form-panel */
 		form.reset();
 		getV_master_order_beli_form.down('#order_id_field').setReadOnly(false);
+		getV_master_order_beli_form.down('#order_no_field').focus(false, true);
+		getV_master_order_beli_form.down('#order_no_field').setValue(nofaktur);
+		getV_master_order_beli_form.down('#order_tanggal_field').setValue(datenow);
 		getSaveBtnForm.setDisabled(true);
 		getCreateBtnForm.setDisabled(false);
+		getPrintBtnForm.setDisabled(true);
+		getCreatePrintBtnForm.setDisabled(false);
 		getV_master_order_beli_form.setDisabled(false);
+		//getV_master_order_beli_form.focus(false, true);
+		order_status_field[0].setReadOnly(true); //radio "terbuka"
+		order_status_field[1].setReadOnly(true); //radio "tertutup"
+		order_status_field[2].setReadOnly(true); //radio "batal"
 		
-		this.getMASTER_ORDER_BELI().setActiveTab(getV_master_order_beli_form);		
+		this.getMASTER_ORDER_BELI().setActiveTab(getV_master_order_beli_form);
+		
 	},
 	
 	enableDelete: function(dataview, selections){

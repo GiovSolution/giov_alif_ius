@@ -224,12 +224,12 @@ class M_".$nfile." extends CI_Model{
 			}
 		}
 		$tulis .= "
-		\$query  = \$this->db->limit(\$limit, \$start)->order_by('".$key."', 'ASC')->get('".$tbl."')->result();
+		\$result  = \$this->db->limit(\$limit, \$start)->order_by('".$key."', 'ASC')->get('".$tbl."')->result();
 		\$total  = \$this->db->get('".$tbl."')->num_rows();
 		
 		\$data   = array();
-		foreach(\$query as \$result){
-			\$data[] = \$result;
+		foreach(\$result as \$row){
+			\$data[] = \$row;
 		}
 		
 		\$json	= array(
@@ -1570,12 +1570,12 @@ class M_".$nfile." extends CI_Model{
 			}
 		}
 		$tulis .= "
-		\$query  = \$this->db->limit(\$limit, \$start)->order_by('".$key."', 'ASC')->get('".$tbl."')->result();
+		\$result  = \$this->db->limit(\$limit, \$start)->order_by('".$key."', 'ASC')->get('".$tbl."')->result();
 		\$total  = \$this->db->get('".$tbl."')->num_rows();
 		
 		\$data   = array();
-		foreach(\$query as \$result){
-			\$data[] = \$result;
+		foreach(\$result as \$row){
+			\$data[] = \$row;
 		}
 		
 		\$json	= array(
@@ -2843,7 +2843,8 @@ foreach($data['fields'] as $field)
 				$tulis .= ",
 			maxLength: ".$field->max_length." /* length of column name */";
 			}
-		$tulis .= "});";
+		$tulis .= "
+		});";
 				}
 				elseif($field->type == "decimal")
 				{

@@ -16,48 +16,49 @@ Ext.define('INVENT.view.TRANSAKSI.v_master_order_beli', {
 		this.columns = [
 			{
 				header: 'order_id',
-				dataIndex: 'order_id'
+				dataIndex: 'order_id',
+				hidden: true
 			},{
-				header: 'order_no',
+				header: 'No. OP',
 				dataIndex: 'order_no'
 			},{
-				header: 'order_supplier',
+				header: 'Supplier',
 				dataIndex: 'order_supplier'
 			},{
-				header: 'order_tanggal',
+				header: 'Tanggal',
 				dataIndex: 'order_tanggal',
 				renderer: Ext.util.Format.dateRenderer('d M, Y')
 			},{
-				header: 'order_carabayar',
+				header: 'Cara Bayar',
 				dataIndex: 'order_carabayar'
-			},{
+			}/*,{
 				header: 'order_diskon',
 				dataIndex: 'order_diskon'
 			},{
 				header: 'order_cashback',
 				dataIndex: 'order_cashback'
-			},{
-				header: 'order_totalbiaya',
+			}*/,{
+				header: 'Total',
 				dataIndex: 'order_totalbiaya'
-			},{
+			}/*,{
 				header: 'order_ttlbiaya_lain2',
 				dataIndex: 'order_ttlbiaya_lain2'
-			},{
-				header: 'order_dp',
+			}*/,{
+				header: 'Uang Muka',
 				dataIndex: 'order_dp'
 			},{
-				header: 'order_sisa_bayar',
+				header: 'Jumlah Hutang',
 				dataIndex: 'order_sisa_bayar'
 			},{
-				header: 'order_keterangan',
+				header: 'Keterangan',
 				dataIndex: 'order_keterangan'
 			},{
-				header: 'order_status_acc',
+				header: 'Status Acc',
 				dataIndex: 'order_status_acc'
 			},{
-				header: 'order_status',
+				header: 'Status',
 				dataIndex: 'order_status'
-			},{
+			}/*,{
 				header: 'order_creator',
 				dataIndex: 'order_creator'
 			},{
@@ -74,7 +75,7 @@ Ext.define('INVENT.view.TRANSAKSI.v_master_order_beli', {
 			},{
 				header: 'order_revised',
 				dataIndex: 'order_revised'
-			}];
+			}*/];
 		this.dockedItems = [
 			Ext.create('Ext.toolbar.Toolbar', {
 				items: [{
