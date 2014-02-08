@@ -44,13 +44,11 @@ class C_".$nfile." extends CI_Controller {
 		\$start  =   (\$this->input->post('start', TRUE) ? \$this->input->post('start', TRUE) : 0);
 		\$page   =   (\$this->input->post('page', TRUE) ? \$this->input->post('page', TRUE) : 1);
 		\$limit  =   (\$this->input->post('limit', TRUE) ? \$this->input->post('limit', TRUE) : 15);
-		\$query  =   (\$this->input->post('query', TRUE) ? \$this->input->post('query', TRUE) : '');
-		\$filter	= 	(\$this->input->post('filter', TRUE) ? \$this->input->post('filter', TRUE) : '');
 		
 		/*
 		 * Processing Data
 		 */
-		\$result = \$this->m_".$nfile."->getAll(\$start, \$page, \$limit, \$query, \$filter);
+		\$result = \$this->m_".$nfile."->getAll(\$start, \$page, \$limit);
 		echo json_encode(\$result);
 	}
 	
@@ -192,7 +190,6 @@ class C_".$nfile." extends CI_Controller {
 	
 	//Generate Model CI
 	function CModel($path,$nfile,$tbl,$data){
-		$col_revised = '';
 		$tulis = "<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /**
  * Class	: M_".$nfile."
@@ -218,7 +215,7 @@ class M_".$nfile." extends CI_Model{
 	 * @param number \$limit
 	 * @return json
 	 */
-	function getAll(\$start, \$page, \$limit, \$query, \$filter){";
+	function getAll(\$start, \$page, \$limit){";
 		foreach($data['fields'] as $field)
 		{
 			if($field->primary_key == "1")
@@ -227,47 +224,8 @@ class M_".$nfile." extends CI_Model{
 			}
 		}
 		$tulis .= "
-		\$select = \"SELECT ";
-		foreach($data['fields'] as $field)
-		{
-			$tulis .= $field->name.",";
-		}
-		$tulis = substr($tulis,0,strlen($tulis) -1);
-		$tulis .= "\";";
-		$tulis .= "
-		\$selecttotal= \"SELECT COUNT(*) AS total\";";
-		$tulis .= "
-		\$from 		= \" FROM ".$tbl."\";
-		\$orderby	= \" ORDER BY ".$key."\";
-		\$limited 	= \" LIMIT \".\$start.\",\".\$limit;
-		
-		// For simple search 
-		if (\$query<>\"\"){
-			\$from .= preg_match(\"/WHERE/i\",\$from)? \" AND \":\" WHERE \";
-			\$from .= \"(\";";
-			foreach($data['fields'] as $field){
-			if(substr($field->name, -3) == '_id'){
-				$tulis .= "
-			if(is_numeric(\$query)){
-				\$from .= \" ".$field->name." = \".addslashes(strtolower(\$query)).\" OR\";
-			}";
-			}else{
-				$tulis .= "
-			if(! is_numeric(\$query)){
-				\$from .= \" lower(".$field->name.") LIKE '%\".addslashes(strtolower(\$query)).\"%' OR\";
-			}";
-			}
-			}
-		$tulis .= "
-			\$from = substr(\$from,0,strlen(\$from) -2);
-			\$from .= \")\";
-		}
-		
-		\$sql = \$select.\$from.\$orderby.\$limited;
-		\$sql_total = \$selecttotal.\$from;
-		
-		\$result  = \$this->db->query(\$sql)->result();
-		\$total  = \$this->db->query(\$sql_total)->row()->total;
+		\$result  = \$this->db->limit(\$limit, \$start)->order_by('".$key."', 'ASC')->get('".$tbl."')->result();
+		\$total  = \$this->db->get('".$tbl."')->num_rows();
 		
 		\$data   = array();
 		foreach(\$result as \$row){
@@ -275,10 +233,10 @@ class M_".$nfile." extends CI_Model{
 		}
 		
 		\$json	= array(
-			'success'   => TRUE,
-			'message'   => \"Loaded data\",
-			'total'     => \$total,
-			'data'      => \$data
+						'success'   => TRUE,
+						'message'   => \"Loaded data\",
+						'total'     => \$total,
+						'data'      => \$data
 		);
 		
 		return \$json;
@@ -315,95 +273,32 @@ class M_".$nfile." extends CI_Model{
 		$tulis = substr($tulis,0,strlen($tulis) -1);
 		$tulis .= ");
 		
-		\$arrdatacu = array(";
-		foreach($data['fields'] as $field)
-		{
-			if((! $field->primary_key == "1") && (substr($field->name, -7) != 'revised')
-			   && (substr($field->name, -7) !== 'creator')
-			   && (substr($field->name, -11) !== 'date_create')
-			   && (substr($field->name, -6) !== 'update')
-			   && (substr($field->name, -11) !== 'date_update'))
-			{
-				if($field->type == "date")
-				{
-					$tulis .= "
-			'".$field->name."'=>(strlen(trim(\$data->".$field->name.")) > 0 ? date('Y-m-d', strtotime(\$data->".$field->name.")) : NULL),";
-				}
-				elseif($field->type == "datetime")
-				{
-					$tulis .= "
-			'".$field->name."'=>(strlen(trim(\$data->".$field->name.")) > 0 ? date('Y-m-d H:i:s', strtotime(\$data->".$field->name.")) : NULL),";
-				}
-				else
-					$tulis .= "
-			'".$field->name."'=>\$data->".$field->name.",";
-			}
-		}
-		$tulis = substr($tulis,0,strlen($tulis) -1);
-		$tulis .= "
-		);
-		
-		\$arrdataupdated = array(";
-		$arrdataupdated_i = 0;
-		foreach($data['fields'] as $field)
-		{
-			if(substr($field->name, -6) == 'update'){
-				$arrdataupdated_i++;
-				$tulis .= "
-			'".$field->name."'=>\$this->session->userdata('SESSION_USERNAME'),";
-			}
-			if(substr($field->name, -11) == 'date_update'){
-				$arrdataupdated_i++;
-				$tulis .= "
-			'".$field->name."'=>date(LONG_FORMATDATE),";
-			}
-		}
-		if($arrdataupdated_i > 0){
-		$tulis = substr($tulis,0,strlen($tulis) -1);	
-		}
-		$tulis .= "
-		);
-		
-		\$arrdatau = array_merge(\$arrdatacu, \$arrdataupdated);
-		
-		\$arrdatacreated = array(";
-		$arrdatacreated_i = 0;
-		foreach($data['fields'] as $field)
-		{
-			if(substr($field->name, -7) == 'creator'){
-				$arrdatacreated_i++;
-				$tulis .= "
-			'".$field->name."'=>\$this->session->userdata('SESSION_USERNAME'),";
-			}
-			if(substr($field->name, -11) == 'date_create'){
-				$arrdatacreated_i++;
-				$tulis .= "
-			'".$field->name."'=>date(LONG_FORMATDATE),";
-			}
-		}
-		if($arrdatacreated_i > 0){
-		$tulis = substr($tulis,0,strlen($tulis) -1);	
-		}
-		$tulis .= "
-		);
-		
-		\$arrdatac = array_merge(\$arrdatacu, \$arrdatacreated);
-		
 		if(\$this->db->get_where('".$tbl."', \$pkey)->num_rows() > 0){
 			/*
 			 * Data Exist
 			 */
 			
-			\$this->db->where(\$pkey)->update('".$tbl."', \$arrdatau);";
-			
-			if(substr($field->name, -7) == 'revised'){
-				$tulis .= "
-			if(\$this->db->affected_rows()){
-				\$this->db->where(\$pkey)->set('".$field->name."', '".$field->name."+1', FALSE)->update('".$tbl."');
-			}";
+			\$arrdatau = array(";
+		foreach($data['fields'] as $field)
+		{
+			if(! $field->primary_key == "1")
+			{
+				if($field->type == "date")
+				{
+					$tulis .= "'".$field->name."'=>(strlen(trim(\$data->".$field->name.")) > 0 ? date('Y-m-d', strtotime(\$data->".$field->name.")) : NULL),";
+				}
+				elseif($field->type == "datetime")
+				{
+					$tulis .= "'".$field->name."'=>(strlen(trim(\$data->".$field->name.")) > 0 ? date('Y-m-d H:i:s', strtotime(\$data->".$field->name.")) : NULL),";
+				}
+				else
+					$tulis .= "'".$field->name."'=>\$data->".$field->name.",";
 			}
-			
-			$tulis .= "
+		}
+		$tulis = substr($tulis,0,strlen($tulis) -1);
+		$tulis .= ");
+			 
+			\$this->db->where(\$pkey)->update('".$tbl."', \$arrdatau);
 			\$last   = \$data;
 			
 		}else{
@@ -413,6 +308,23 @@ class M_".$nfile." extends CI_Model{
 			 * Process Insert
 			 */
 			
+			\$arrdatac = array(";
+		foreach($data['fields'] as $field)
+		{
+			if($field->type == "date")
+			{
+				$tulis .= "'".$field->name."'=>(strlen(trim(\$data->".$field->name.")) > 0 ? date('Y-m-d', strtotime(\$data->".$field->name.")) : NULL),";
+			}
+			elseif($field->type == "datetime")
+			{
+				$tulis .= "'".$field->name."'=>(strlen(trim(\$data->".$field->name.")) > 0 ? date('Y-m-d H:i:s', strtotime(\$data->".$field->name.")) : NULL),";
+			}
+			else
+				$tulis .= "'".$field->name."'=>\$data->".$field->name.",";
+		}
+		$tulis = substr($tulis,0,strlen($tulis) -1);
+		$tulis .= ");
+			 
 			\$this->db->insert('".$tbl."', \$arrdatac);
 			\$last   = \$this->db->where(\$pkey)->get('".$tbl."')->row();
 			
@@ -421,10 +333,10 @@ class M_".$nfile." extends CI_Model{
 		\$total  = \$this->db->get('".$tbl."')->num_rows();
 		
 		\$json   = array(
-			\"success\"   => TRUE,
-			\"message\"   => 'Data berhasil disimpan',
-			\"total\"     => \$total,
-			\"data\"      => \$last
+						\"success\"   => TRUE,
+						\"message\"   => 'Data berhasil disimpan',
+						\"total\"     => \$total,
+						\"data\"      => \$last
 		);
 		
 		return \$json;
@@ -465,10 +377,10 @@ class M_".$nfile." extends CI_Model{
 		\$last = \$this->db->get('".$tbl."')->result();
 		
 		\$json   = array(
-			\"success\"   => TRUE,
-			\"message\"   => 'Data berhasil dihapus',
-			\"total\"     => \$total,
-			\"data\"      => \$last
+						\"success\"   => TRUE,
+						\"message\"   => 'Data berhasil dihapus',
+						\"total\"     => \$total,
+						\"data\"      => \$last
 		);				
 		return \$json;
 	}
@@ -579,21 +491,18 @@ class M_".$nfile." extends CI_Model{
 	
 	createRecord: function(){
 		var model		= Ext.ModelMgr.getModel('INVENT.model.m_".$nfile."');
-		var r = Ext.ModelManager.create({";
+		var r = Ext.ModelManager.create({
+		";
 		foreach($data['fields'] as $field)
 		{
-			if($field->primary_key == "1" && (substr($field->default, 0, 7) == 'nextval'))
+			$tulis .= "".$field->name."		: '',";
+			if($field->primary_key == "1")
 			{
-				$tulis .= "
-			".$field->name.": 0,";
-			}else{
-				$tulis .= "
-			".$field->name.": '',";
+				$key = $field->name;
 			}
 		}
 		$tulis = substr($tulis,0,strlen($tulis) -1);
-		$tulis .= "
-		}, model);
+		$tulis .= "}, model);
 		this.getV_".$nfile."().getStore().insert(0, r);
 		this.getV_".$nfile."().rowEditing.startEdit(0,0);
 	},
@@ -775,7 +684,7 @@ class M_".$nfile." extends CI_Model{
 </head>
 
 <body>
-<table id=\"mytable\" cellspacing=\"0\" summary=\"".$data['pathjs']." - ".$nfile."\">
+<table id=\"mytable\" cellspacing=\"0\" summary=\"INVENT - ".$nfile."\">
 <caption>Table: ".$tbl." </caption>
   <tr>
 	<?php 
@@ -877,7 +786,7 @@ class M_".$nfile." extends CI_Model{
 
 <h1>Table: <?php print \$table;?></h1>
 
-<table class=\"gridtable\" cellspacing=\"0\" summary=\"".$data['pathjs']." - ".$nfile."\">
+<table class=\"gridtable\" cellspacing=\"0\" summary=\"INVENT - ".$nfile."\">
 	<tr>
 		<?php 
 		foreach (\$records[0] as \$key => \$value){
@@ -931,7 +840,7 @@ class M_".$nfile." extends CI_Model{
 	
 $tulis = substr($tulis,0,strlen($tulis) -1);
 $tulis .= "],";
-	/*$i=0;
+	$i=0;
 	$idProperty = "";
 	foreach($data['fields'] as $field)
 	{
@@ -947,8 +856,8 @@ $tulis .= "],";
 		$tulis .= $idProperty;
 	}else{
 		$tulis = substr($tulis,0,strlen($tulis) -1);
-	}*/
-$tulis = substr($tulis,0,strlen($tulis) -1);
+	}
+	
 $tulis .= "	
 });";
 		
@@ -1039,27 +948,24 @@ $tulis .= "
 	extend: 'Ext.grid.Panel',
 	requires: ['INVENT.store.s_".$nfile."'],
 	
-	//title		: '".$nfile."',
+	title		: '".$nfile."',
 	itemId		: 'v_".$nfile."',
 	alias       : 'widget.v_".$nfile."',
 	store 		: 's_".$nfile."',
 	columnLines : true,
-	//frame		: true,
+	frame		: true,
 	
 	margin		: 0,
 	selectedIndex: -1,
-	minHeight	: 170,
 	
 	initComponent: function(){
-		var rowediting_status = Ext.create('Ext.form.field.Text', {
-			value: 'undefined'
-		});";
+	";
 	
 	foreach($data['fields'] as $field)
 	{
 		if($field->primary_key == "1")
 		{
-			if($field->type == "date")
+			if($field->type == "date" || $field->type == "datetime")
 			{
 				$tulis .= "
 		var ".$field->name."_field = Ext.create('Ext.form.field.Date', {
@@ -1067,17 +973,7 @@ $tulis .= "
 			format: 'Y-m-d'
 		});";
 			}
-			elseif($field->type == "datetime" || $field->type == "timestamp")
-			{
-				$tulis .= "
-		var ".$field->name."_field = Ext.create('Ext.ux.form.DateTimeField', {
-			allowBlank : false,
-			format: 'Y-m-d'
-		});";
-			}
-			elseif($field->type == "int" || $field->type == "tinyint" || $field->type == "smallint"
-				   || $field->type == "bigint" || $field->type == "decimal" || $field->type == "float"
-				   || $field->type == "double" )
+			elseif($field->type == "int" || $field->type == "decimal")
 			{
 				$tulis .= "
 		var ".$field->name."_field = Ext.create('Ext.form.field.Number', {
@@ -1091,7 +987,7 @@ $tulis .= "
 			}
 			else
 			{
-				if($field->type == "text")
+				if($field->max_length > 20)
 				{
 					$tulis .= "
 		var ".$field->name."_field = Ext.create('Ext.form.field.TextArea', {
@@ -1129,7 +1025,7 @@ $tulis .= "
 		{
 			if($field->primary_key == "1")
 			{
-				$tulis .= "! (/^\d+$/).test(e.record.data.".$field->name.") || ";
+				$tulis .= "! (/^\s*$/).test(e.record.data.".$field->name.") || ";
 			}
 		}
 		$tulis = substr($tulis,0,strlen($tulis) -3);
@@ -1157,39 +1053,33 @@ $tulis .= "
 		$tulis .= "
 					}
 					
-					if ((rowediting_status.getValue() == 'undefined') || (rowediting_status.getValue() == 'afterediting')) {
-						rowediting_status.setValue('editing');
-						return true;
-					}else{
-						return false;
-					}
-					
 				},
 				'canceledit': function(editor, e){
-					rowediting_status.setValue('afterediting');
-					//(/^\d+$/).test(value) <== is_number ?
-					//(/^\s*$/).test(value) <== is_string ?
-					";
-		foreach($data['fields'] as $field)
-		{
-			if($field->primary_key == "1" && (substr($field->default, 0, 7) == 'nextval'))
-			{
-				$tulis .= "if((! (/^\d+$/).test(e.record.data.".$field->name."))
-						|| (e.record.data.".$field->name." == 0)){
-						editor.cancelEdit();
-						e.store.removeAt(e.rowIdx);
-					}";
-			}
-		}
-					$tulis .= "
-				},
-				'validateedit': function(editor, e){
 					if(";
 		foreach($data['fields'] as $field)
 		{
 			if($field->primary_key == "1")
 			{
-				$tulis .= "(/^\d+$/).test(e.record.data.".$field->name.") || ";
+				$tulis .= "(/^\s*$/).test(e.record.data.".$field->name.") || ";
+			}
+		}
+		$tulis = substr($tulis,0,strlen($tulis) -3);
+					$tulis .= "){
+						editor.cancelEdit();
+						var sm = e.grid.getSelectionModel();
+						e.store.remove(sm.getSelection());
+					}
+				},
+				'validateedit': function(editor, e){
+				},
+				'afteredit': function(editor, e){
+					var me = this;
+					if(";
+		foreach($data['fields'] as $field)
+		{
+			if($field->primary_key == "1")
+			{
+				$tulis .= "(/^\s*$/).test(e.record.data.".$field->name.") || ";
 			}
 		}
 		$tulis = substr($tulis,0,strlen($tulis) -3);
@@ -1206,12 +1096,8 @@ $tulis .= "
 		$tulis .= " tidak boleh kosong.');
 						return false;
 					}
-					return true;
-				},
-				'afteredit': function(editor, e){
-					rowediting_status.setValue('afterediting');
-					var me = this;
-					
+					/* e.store.sync();
+					return true; */
 					var jsonData = Ext.encode(e.record.data);
 					
 					Ext.Ajax.request({
@@ -1236,9 +1122,7 @@ $tulis .= "
 													{
 														$tulis .= "(new Date(record.get('".$field->name."'))).format('yyyy-mm-dd hh:nn:ss') === (new Date(e.record.data.".$field->name.")).format('yyyy-mm-dd hh:nn:ss') && ";
 													}
-													elseif($field->type == "int" || $field->type == "tinyint" || $field->type == "smallint"
-														|| $field->type == "bigint" || $field->type == "decimal" || $field->type == "float"
-														|| $field->type == "double" )
+													elseif($field->type == "int" || $field->type == "decimal")
 													{
 														$tulis .= "parseFloat(record.get('".$field->name."')) === e.record.data.".$field->name." && ";
 													}
@@ -1259,7 +1143,7 @@ $tulis .= "
 							});
 						}
 					});
-					
+					return true;
 				}
 			}
 		});
@@ -1270,44 +1154,24 @@ foreach($data['fields'] as $field)
 {
 	if(! $field->primary_key == "1")
 	{
-		if($field->type == "date")
+		if($field->type == "date" || $field->type == "datetime")
 		{
 			$tulis .= "{
 				header: '".$field->name."',
 				dataIndex: '".$field->name."',
 				renderer: Ext.util.Format.dateRenderer('d M, Y'),
-				field: {
-					xtype: 'datefield',
-					format: 'd-m-Y',
-					allowBlank: true
-				}
+				field: {xtype: 'datefield',format: 'm-d-Y'}
 			},";
 		}
-		elseif($field->type == "datetime" || $field->type == "timestamp")
+		elseif($field->type == "int")
 		{
 			$tulis .= "{
 				header: '".$field->name."',
 				dataIndex: '".$field->name."',
-				field: {
-					xtype: 'datetimefield',
-					format: 'Y-m-d',
-					allowBlank: true
-				}
+				field: {xtype: 'numberfield'}
 			},";
 		}
-		elseif($field->type == "int" || $field->type == "tinyint" || $field->type == "smallint"
-			|| $field->type == "bigint" )
-		{
-			$tulis .= "{
-				header: '".$field->name."',
-				dataIndex: '".$field->name."',
-				field: {
-					xtype: 'numberfield',
-					allowBlank: true
-				}
-			},";
-		}
-		elseif($field->type == "decimal" || $field->type == "float" || $field->type == "double")
+		elseif($field->type == "decimal")
 		{
 			$tulis .= "{
 				header: '".$field->name."',
@@ -1316,52 +1180,30 @@ foreach($data['fields'] as $field)
 				renderer: function(value){
 					return Ext.util.Format.currency(value, 'Rp ', 2);
 				},
-				field: {
-					xtype: 'numberfield',
-					allowBlank: true
-				}
+				field: {xtype: 'numberfield'}
 			},";
 		}
 		else
 		{
-			if($field->type == "text")
+			if($field->max_length > 20)
 			{
 				$tulis .= "{
 				header: '".$field->name."',
 				dataIndex: '".$field->name."',
-				field: {
-					xtype: 'textarea',
-					allowBlank: true
-				}
-			},";
-			}else if($field->type == 'bpchar' && substr($field->name, -6) == "_aktif")
-			{
-				$tulis .= "{
-				xtype: 'checkcolumn',
-				header: 'Aktif?',
-				dataIndex: '".$field->name."',
-				processEvent: function(){return false;},
-				editor: {
-					xtype: 'checkbox',
-					cls: 'x-grid-checkheader-editor'
-				}
+				field: {xtype: 'textarea'}
 			},";
 			}
-			else {
+			else
 				$tulis .= "{
 				header: '".$field->name."',
 				dataIndex: '".$field->name."',
-				field: {
-					xtype: 'textfield',
-					allowBlank: true
-				}
+				field: {xtype: 'textfield'}
 			},";
-			}
 		}
 	}
 	else
 	{
-		if($field->type == "date")
+		if($field->type == "date" || $field->type == "datetime")
 		{
 			$tulis .= "{
 				header: '".$field->name."',
@@ -1370,17 +1212,7 @@ foreach($data['fields'] as $field)
 				field: ".$field->name."_field
 			},";
 		}
-		elseif($field->type == "datetime" || $field->type == "timestamp")
-		{
-			$tulis .= "{
-				header: '".$field->name."',
-				dataIndex: '".$field->name."',
-				field: ".$field->name."_field
-			},";
-		}
-		elseif($field->type == "int" || $field->type == "tinyint" || $field->type == "smallint"
-			|| $field->type == "bigint" || $field->type == "decimal" || $field->type == "float"
-			|| $field->type == "double" )
+		elseif($field->type == "int" || $field->type == "decimal")
 		{
 			$tulis .= "{
 				header: '".$field->name."',
@@ -1390,7 +1222,16 @@ foreach($data['fields'] as $field)
 		}
 		else
 		{
-			$tulis .= "{
+			if($field->max_length > 20)
+			{
+				$tulis .= "{
+				header: '".$field->name."',
+				dataIndex: '".$field->name."',
+				field: ".$field->name."_field
+			},";
+			}
+			else
+				$tulis .= "{
 				header: '".$field->name."',
 				dataIndex: '".$field->name."',
 				field: ".$field->name."_field
@@ -1455,13 +1296,6 @@ foreach($data['fields'] as $field)
 		
 		this.on('itemclick', this.gridSelection);
 		this.getView().on('refresh', this.refreshSelection, this);
-		this.on('beforeselect', function(thisme, record, index, eOpts){
-			if (rowediting_status.getValue() == 'editing') {
-				return false;
-			}else{
-				return true;
-			}
-		});
 	},
 	
 	gridSelection: function(me, record, item, index, e, eOpts){
@@ -1489,14 +1323,10 @@ foreach($data['fields'] as $field)
 	//Generate Viewport Extjs
 	function CViewport($path,$nfile,$tbl,$data){
 		$tulis = "Ext.define('INVENT.view.".$data['pathjs'].".".strtoupper($nfile)."', {
-	extend		: 'Ext.form.Panel',
+	extend: 'Ext.form.Panel',
 	
-	alias		: 'widget.".strtoupper($nfile)."',
-	
-	title		: '".$tbl."',
-	bodyPadding	: 0,
-	layout		: 'border',
-	closable	: true,
+	bodyPadding: 0,
+	layout: 'border',
 	initComponent: function(){
 		this.items = [{
 			region: 'center',
@@ -1560,13 +1390,11 @@ class C_".$nfile." extends CI_Controller {
 		\$start  =   (\$this->input->post('start', TRUE) ? \$this->input->post('start', TRUE) : 0);
 		\$page   =   (\$this->input->post('page', TRUE) ? \$this->input->post('page', TRUE) : 1);
 		\$limit  =   (\$this->input->post('limit', TRUE) ? \$this->input->post('limit', TRUE) : 15);
-		\$query  =   (\$this->input->post('query', TRUE) ? \$this->input->post('query', TRUE) : '');
-		\$filter	= 	(\$this->input->post('filter', TRUE) ? \$this->input->post('filter', TRUE) : '');
 		
 		/*
 		 * Processing Data
 		 */
-		\$result = \$this->m_".$nfile."->getAll(\$start, \$page, \$limit, \$query, \$filter);
+		\$result = \$this->m_".$nfile."->getAll(\$start, \$page, \$limit);
 		echo json_encode(\$result);
 	}
 	
@@ -1708,7 +1536,6 @@ class C_".$nfile." extends CI_Controller {
 	
 	//Generate Model CI
 	function CModelSF($path,$nfile,$tbl,$data){
-		$col_revised = '';
 		$tulis = "<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /**
  * Class	: M_".$nfile."
@@ -1734,7 +1561,7 @@ class M_".$nfile." extends CI_Model{
 	 * @param number \$limit
 	 * @return json
 	 */
-	function getAll(\$start, \$page, \$limit, \$query, \$filter){";
+	function getAll(\$start, \$page, \$limit){";
 		foreach($data['fields'] as $field)
 		{
 			if($field->primary_key == "1")
@@ -1743,47 +1570,8 @@ class M_".$nfile." extends CI_Model{
 			}
 		}
 		$tulis .= "
-		\$select = \"SELECT ";
-		foreach($data['fields'] as $field)
-		{
-			$tulis .= $field->name.",";
-		}
-		$tulis = substr($tulis,0,strlen($tulis) -1);
-		$tulis .= "\";";
-		$tulis .= "
-		\$selecttotal= \"SELECT COUNT(*) AS total\";";
-		$tulis .= "
-		\$from 		= \" FROM ".$tbl."\";
-		\$orderby 	= \" ORDER BY ".$key."\";
-		\$limited 	= \" LIMIT \".\$start.\",\".\$limit;
-		
-		// For simple search 
-		if (\$query<>\"\"){
-			\$from .= preg_match(\"/WHERE/i\",\$from)? \" AND \":\" WHERE \";
-			\$from .= \"(\";";
-			foreach($data['fields'] as $field){
-			if(substr($field->name, -3) == '_id'){
-				$tulis .= "
-			if(is_numeric(\$query)){
-				\$from .= \" ".$field->name." = \".addslashes(strtolower(\$query)).\" OR\";
-			}";
-			}else{
-				$tulis .= "
-			if(! is_numeric(\$query)){
-				\$from .= \" lower(".$field->name.") LIKE '%\".addslashes(strtolower(\$query)).\"%' OR\";
-			}";
-			}
-			}
-		$tulis .= "
-			\$from = substr(\$from,0,strlen(\$from) -2);
-			\$from .= \")\";
-		}
-		
-		\$sql = \$select.\$from.\$orderby.\$limited;
-		\$sql_total = \$selecttotal.\$from;
-		
-		\$result  = \$this->db->query(\$sql)->result();
-		\$total  = \$this->db->query(\$sql_total)->row()->total;
+		\$result  = \$this->db->limit(\$limit, \$start)->order_by('".$key."', 'ASC')->get('".$tbl."')->result();
+		\$total  = \$this->db->get('".$tbl."')->num_rows();
 		
 		\$data   = array();
 		foreach(\$result as \$row){
@@ -1791,10 +1579,10 @@ class M_".$nfile." extends CI_Model{
 		}
 		
 		\$json	= array(
-			'success'   => TRUE,
-			'message'   => \"Loaded data\",
-			'total'     => \$total,
-			'data'      => \$data
+						'success'   => TRUE,
+						'message'   => \"Loaded data\",
+						'total'     => \$total,
+						'data'      => \$data
 		);
 		
 		return \$json;
@@ -1831,90 +1619,44 @@ class M_".$nfile." extends CI_Model{
 		$tulis = substr($tulis,0,strlen($tulis) -1);
 		$tulis .= ");
 		
-		\$arrdatacu = array(";
-		foreach($data['fields'] as $field)
-		{
-			if((! $field->primary_key == "1") && (substr($field->name, -7) != 'revised')
-			   && (substr($field->name, -7) !== 'creator')
-			   && (substr($field->name, -11) !== 'date_create')
-			   && (substr($field->name, -6) !== 'update')
-			   && (substr($field->name, -11) !== 'date_update'))
-			{
-				if($field->type == "date")
-				{
-					$tulis .= "
-			'".$field->name."'=>(strlen(trim(\$data->".$field->name.")) > 0 ? date('Y-m-d', strtotime(\$data->".$field->name.")) : NULL),";
-				}
-				elseif($field->type == "datetime")
-				{
-					$tulis .= "
-			'".$field->name."'=>(strlen(trim(\$data->".$field->name.")) > 0 ? date('Y-m-d H:i:s', strtotime(\$data->".$field->name.")) : NULL),";
-				}
-				else
-					$tulis .= "
-			'".$field->name."'=>\$data->".$field->name.",";
-			}
-		}
-		$tulis = substr($tulis,0,strlen($tulis) -1);
-		$tulis .= "
-		);
-		
-		\$arrdataupdated = array(";
-		$arrdataupdated_i = 0;
-		foreach($data['fields'] as $field)
-		{
-			if(substr($field->name, -6) == 'update'){
-				$arrdataupdated_i++;
-				$tulis .= "
-			'".$field->name."'=>\$this->session->userdata('SESSION_USERNAME'),";
-			}
-			if(substr($field->name, -11) == 'date_update'){
-				$arrdataupdated_i++;
-				$tulis .= "
-			'".$field->name."'=>date(LONG_FORMATDATE),";
-			}
-		}
-		if($arrdataupdated_i > 0){
-		$tulis = substr($tulis,0,strlen($tulis) -1);
-		}
-		$tulis .= "
-		);
-		
-		\$arrdatau = array_merge(\$arrdatacu, \$arrdataupdated);
-		
-		\$arrdatacreated = array(";
-		foreach($data['fields'] as $field)
-		{
-			if(substr($field->name, -7) == 'creator'){
-				$tulis .= "
-			'".$field->name."'=>\$this->session->userdata('SESSION_USERNAME'),";
-			}
-			if(substr($field->name, -11) == 'date_create'){
-				$tulis .= "
-			'".$field->name."'=>date(LONG_FORMATDATE),";
-			}
-		}
-		$tulis = substr($tulis,0,strlen($tulis) -1);
-		$tulis .= "
-		);
-		
-		\$arrdatac = array_merge(\$arrdatacu, \$arrdatacreated);
-		
 		if(\$this->db->get_where('".$tbl."', \$pkey)->num_rows() > 0){
 			/*
 			 * Data Exist
-			 */
-			
-			\$this->db->where(\$pkey)->update('".$tbl."', \$arrdatau);";
-			
-			if(substr($field->name, -7) == 'revised'){
-				$tulis .= "
-			if(\$this->db->affected_rows()){
-				\$this->db->where(\$pkey)->set('".$field->name."', '".$field->name."+1', FALSE)->update('".$tbl."');
-			}";
+			 */			 
+			";
+		foreach($data['fields'] as $field)
+		{
+			if($field->type == "decimal")
+			{
+				$tulis .= "\$tmp = substr(\$data->".$field->name.",3,strlen(\$data->".$field->name."));
+			\$tmp = str_replace('.','',\$tmp);
+			\$tmp = str_replace(',','.',\$tmp);
+			\$data->".$field->name." = \$tmp;";
 			}
-			
-			$tulis .= "
+		}
+		$tulis .= "	
+			 
+			\$arrdatau = array(";
+		foreach($data['fields'] as $field)
+		{
+			if(! $field->primary_key == "1")
+			{
+				if($field->type == "date")
+				{
+					$tulis .= "'".$field->name."'=>(strlen(trim(\$data->".$field->name.")) > 0 ? date('Y-m-d', strtotime(\$data->".$field->name.")) : NULL),";
+				}
+				elseif($field->type == "datetime")
+				{
+					$tulis .= "'".$field->name."'=>(strlen(trim(\$data->".$field->name.")) > 0 ? date('Y-m-d H:i:s', strtotime(\$data->".$field->name.")) : NULL),";
+				}
+				else
+					$tulis .= "'".$field->name."'=>\$data->".$field->name.",";
+			}
+		}
+		$tulis = substr($tulis,0,strlen($tulis) -1);
+		$tulis .= ");
+			 
+			\$this->db->where(\$pkey)->update('".$tbl."', \$arrdatau);
 			\$last   = \$data;
 			
 		}else{
@@ -1923,7 +1665,36 @@ class M_".$nfile." extends CI_Model{
 			 * 
 			 * Process Insert
 			 */
-			
+			 ";
+		foreach($data['fields'] as $field)
+		{
+			if($field->type == "decimal")
+			{
+				$tulis .= "\$tmp = substr(\$data->".$field->name.",3,strlen(\$data->".$field->name."));
+			\$tmp = str_replace('.','',\$tmp);
+			\$tmp = str_replace(',','.',\$tmp);
+			\$data->".$field->name." = \$tmp;";
+			}
+		}
+		$tulis .= "
+			\$arrdatac = array(";
+			 
+		foreach($data['fields'] as $field)
+		{
+			if($field->type == "date")
+			{
+				$tulis .= "'".$field->name."'=>(strlen(trim(\$data->".$field->name.")) > 0 ? date('Y-m-d', strtotime(\$data->".$field->name.")) : NULL),";
+			}
+			elseif($field->type == "datetime")
+			{
+				$tulis .= "'".$field->name."'=>(strlen(trim(\$data->".$field->name.")) > 0 ? date('Y-m-d H:i:s', strtotime(\$data->".$field->name.")) : NULL),";
+			}
+			else
+				$tulis .= "'".$field->name."'=>\$data->".$field->name.",";
+		}
+		$tulis = substr($tulis,0,strlen($tulis) -1);
+		$tulis .= ");
+			 
 			\$this->db->insert('".$tbl."', \$arrdatac);
 			\$last   = \$this->db->where(\$pkey)->get('".$tbl."')->row();
 			
@@ -1932,10 +1703,10 @@ class M_".$nfile." extends CI_Model{
 		\$total  = \$this->db->get('".$tbl."')->num_rows();
 		
 		\$json   = array(
-			\"success\"   => TRUE,
-			\"message\"   => 'Data berhasil disimpan',
-			\"total\"     => \$total,
-			\"data\"      => \$last
+						\"success\"   => TRUE,
+						\"message\"   => 'Data berhasil disimpan',
+						'total'     => \$total,
+						\"data\"      => \$last
 		);
 		
 		return \$json;
@@ -1966,7 +1737,7 @@ class M_".$nfile." extends CI_Model{
 				else
 					$tulis .= "'".$field->name."'=>\$data->".$field->name.",";
 			}
-		}
+		}	
 		$tulis = substr($tulis,0,strlen($tulis) -1);
 		$tulis .= ");
 		
@@ -1976,10 +1747,10 @@ class M_".$nfile." extends CI_Model{
 		\$last = \$this->db->get('".$tbl."')->result();
 		
 		\$json   = array(
-			\"success\"   => TRUE,
-			\"message\"   => 'Data berhasil dihapus',
-			\"total\"     => \$total,
-			\"data\"      => \$last
+						\"success\"   => TRUE,
+						\"message\"   => 'Data berhasil dihapus',
+						'total'     => \$total,
+						\"data\"      => \$last
 		);				
 		return \$json;
 	}
@@ -2032,7 +1803,7 @@ class M_".$nfile." extends CI_Model{
 			},
 			'v_".$nfile."': {
 				'selectionchange': this.enableDelete,
-				'itemdblclick': this.updateList".$nfile.",
+				'itemdblclick': this.updatev_".$nfile.",
 				'afterrender': this.v_".$nfile."AfterRender
 			},
 			'v_".$nfile."_form': {
@@ -2063,6 +1834,35 @@ class M_".$nfile." extends CI_Model{
 				click: this.cancelV_".$nfile."_form
 			}
 		});
+	},
+	
+	".$nfile."AfterRender: function(){
+		var me = this;
+		
+		var ".$nfile."Store = this.getV_".$nfile."().getStore();
+		".$nfile."Store.load();
+		
+		/**
+		 * START var navKeys <== Jika menekan huruf 'f' itu artinya 'first'
+		 */
+		/*var navKeys = {
+			'f': 'first',
+			's': 'second',
+			't': 'third'
+		};
+		var map = Ext.create('Ext.util.KeyMap', {
+			target: window.el
+		});
+		Ext.iterate(navKeys, function(key, tabId) {
+			map.addBinding({
+				key  : key,
+				scope: this,
+				fn   : function() {
+					console.log(tabId);
+				}
+			});
+		}, this);*/
+		/* END var navKeys */
 	},
 	
 	v_".$nfile."AfterRender: function(window, options){
@@ -2153,35 +1953,6 @@ class M_".$nfile." extends CI_Model{
 		});
 	},
 	
-	".$nfile."AfterRender: function(window, options){
-		var me = this;
-		
-		var ".$nfile."Store = this.getV_".$nfile."().getStore();
-		".$nfile."Store.load();
-		
-		/**
-		 * START var navKeys <== Jika menekan huruf 'f' itu artinya 'first'
-		 */
-		/*var navKeys = {
-			'f': 'first',
-			's': 'second',
-			't': 'third'
-		};
-		var map = Ext.create('Ext.util.KeyMap', {
-			target: window.el
-		});
-		Ext.iterate(navKeys, function(key, tabId) {
-			map.addBinding({
-				key  : key,
-				scope: this,
-				fn   : function() {
-					console.log(tabId);
-				}
-			});
-		}, this);*/
-		/* END var navKeys */
-	},
-	
 	createRecord: function(){
 		var getV_".$nfile."	= this.getV_".$nfile."();
 		var getV_".$nfile."_form= this.getV_".$nfile."_form(),
@@ -2216,7 +1987,7 @@ class M_".$nfile." extends CI_Model{
 		this.getV_".$nfile."().down('#btndelete').setDisabled(!selections.length);
 	},
 	
-	updateList".$nfile.": function(me, record, item, index, e){
+	updatev_".$nfile.": function(me, record, item, index, e){
 		var get".strtoupper($nfile)."		= this.get".strtoupper($nfile)."();
 		var getV_".$nfile."	= this.getV_".$nfile."();
 		var getV_".$nfile."_form= this.getV_".$nfile."_form(),
@@ -2414,6 +2185,7 @@ class M_".$nfile." extends CI_Model{
 		form.reset();
 		getV_".$nfile."_form.setDisabled(true);
 		getV_".$nfile.".setDisabled(false);
+		getV_".$nfile.".focus(false, true);
 		get".strtoupper($nfile).".setActiveTab(getV_".$nfile.");
 	}
 	
@@ -2520,7 +2292,7 @@ class M_".$nfile." extends CI_Model{
 </head>
 
 <body>
-<table id=\"mytable\" cellspacing=\"0\" summary=\"".$data['pathjs']." - ".$nfile."\">
+<table id=\"mytable\" cellspacing=\"0\" summary=\"INVENT - ".$nfile."\">
 <caption>Table: ".$tbl." </caption>
   <tr>
 	<?php 
@@ -2622,7 +2394,7 @@ class M_".$nfile." extends CI_Model{
 
 <h1>Table: <?php print \$table;?></h1>
 
-<table class=\"gridtable\" cellspacing=\"0\" summary=\"".$data['pathjs']." - ".$nfile."\">
+<table class=\"gridtable\" cellspacing=\"0\" summary=\"INVENT - ".$nfile."\">
 	<tr>
 		<?php 
 		foreach (\$records[0] as \$key => \$value){
@@ -2784,7 +2556,7 @@ $tulis .= "
 	extend: 'Ext.grid.Panel',
 	requires: ['INVENT.store.s_".$nfile."'],
 	
-	title		: 'Grid ".$nfile."',
+	title		: '".$nfile."',
 	itemId		: 'v_".$nfile."',
 	alias       : 'widget.v_".$nfile."',
 	store 		: 's_".$nfile."',
@@ -2801,7 +2573,22 @@ foreach($data['fields'] as $field)
 {
 	if(! $field->primary_key == "1")
 	{
-		if($field->type == "decimal" || $field->type == "float" || $field->type == "double" )
+		if($field->type == "date" || $field->type == "datetime")
+		{
+			$tulis .= "{
+				header: '".$field->name."',
+				dataIndex: '".$field->name."',
+				renderer: Ext.util.Format.dateRenderer('d M, Y')
+			},";
+		}
+		elseif($field->type == "int")
+		{
+			$tulis .= "{
+				header: '".$field->name."',
+				dataIndex: '".$field->name."'
+			},";
+		}
+		elseif($field->type == "decimal")
 		{
 			$tulis .= "{
 				header: '".$field->name."',
@@ -2814,7 +2601,15 @@ foreach($data['fields'] as $field)
 		}
 		else
 		{
-			$tulis .= "{
+			if($field->max_length > 20)
+			{
+				$tulis .= "{
+				header: '".$field->name."',
+				dataIndex: '".$field->name."'
+			},";
+			}
+			else
+				$tulis .= "{
 				header: '".$field->name."',
 				dataIndex: '".$field->name."'
 			},";
@@ -2822,10 +2617,36 @@ foreach($data['fields'] as $field)
 	}
 	else
 	{
+		if($field->type == "date" || $field->type == "datetime")
+		{
+			$tulis .= "{
+				header: '".$field->name."',
+				dataIndex: '".$field->name."',
+				renderer: Ext.util.Format.dateRenderer('d M, Y')
+			},";
+		}
+		elseif($field->type == "int" || $field->type == "decimal")
+		{
 			$tulis .= "{
 				header: '".$field->name."',
 				dataIndex: '".$field->name."'
 			},";
+		}
+		else
+		{
+			if($field->max_length > 20)
+			{
+				$tulis .= "{
+				header: '".$field->name."',
+				dataIndex: '".$field->name."'
+			},";
+			}
+			else
+				$tulis .= "{
+				header: '".$field->name."',
+				dataIndex: '".$field->name."'
+			},";
+		}
 			
 	}		
 }
@@ -2916,6 +2737,9 @@ foreach($data['fields'] as $field)
 	
 	alias	: 'widget.v_".$nfile."_form',
 	
+	region:'east',
+	id: 'east-region-container',
+	
 	title		: 'Create/Update ".$nfile."',
     bodyPadding	: 5,
     autoScroll	: true,
@@ -2923,40 +2747,26 @@ foreach($data['fields'] as $field)
     initComponent: function(){
     	/*
 		 * Deklarasi variable setiap field
-		 */
-		 ";
+		 */";
 		foreach($data['fields'] as $field)
 		{
 			if(! $field->primary_key == "1")
 			{
-				if($field->type == "date")
+				if($field->type == "date" || $field->type == "datetime")
 				{
 					$tulis .= "
 		var ".$field->name."_field = Ext.create('Ext.form.field.Date', {
 			name: '".$field->name."', /* column name of table */
 			format: 'Y-m-d',
-			fieldLabel: '".$field->name."',
-			allowBlank: true
+			fieldLabel: '".$field->name."'
 		});";
 				}
-				elseif($field->type == "datetime" || $field->type == "timestamp")
-				{
-					$tulis .= "
-		var ".$field->name."_field = Ext.create('Ext.ux.form.DateTimeField', {
-			name: '".$field->name."', /* column name of table */
-			format: 'Y-m-d',
-			fieldLabel: '".$field->name."',
-			allowBlank: true
-		});";
-				}
-				elseif($field->type == "int" || $field->type == "tinyint" || $field->type == "smallint"
-					|| $field->type == "bigint" )
+				elseif($field->type == "int")
 				{
 					$tulis .= "
 		var ".$field->name."_field = Ext.create('Ext.form.field.Number', {
 			name: '".$field->name."', /* column name of table */
-			fieldLabel: '".$field->name."',
-			allowBlank: true";
+			fieldLabel: '".$field->name."'";
 			if(isset($field->max_length)){
 				$tulis .= ",
 			maxLength: ".$field->max_length." /* length of column name */";
@@ -2964,14 +2774,12 @@ foreach($data['fields'] as $field)
 		$tulis .= "
 		});";
 				}
-				elseif($field->type == "decimal" || $field->type == "float"
-					|| $field->type == "double" )
+				elseif($field->type == "decimal")
 				{
 					$tulis .= "
 		var ".$field->name."_field = Ext.create('Ext.ux.form.NumericField', {
 			name: '".$field->name."', /* column name of table */
 			fieldLabel: '".$field->name."',
-			allowBlank: true,
 			useThousandSeparator: true,
 			decimalPrecision: 2,
 			alwaysDisplayDecimals: true,
@@ -2980,37 +2788,14 @@ foreach($data['fields'] as $field)
 			decimalSeparator: ','
 		});";
 				}
-				elseif($field->type == "bpchar" && substr($field->name, -6) == "_aktif")
-				{
-					$tulis .= "
-		var ".$field->name."_field = Ext.create('Ext.form.RadioGroup', {
-			flex: 1,
-			layout: {
-				autoFlex: false
-			},
-			defaults: {
-				name: '".$field->name."',
-				margin: '0 15 0 0'
-			},
-			items: [{
-				inputValue: 'y',
-				boxLabel: 'Aktif',
-				checked: true
-			}, {
-				inputValue: 't',
-				boxLabel: 'Tidak Aktif'
-			}]
-		});";
-				}
 				else
 				{
-					if($field->type == "text")
+					if($field->max_length > 20)
 					{
 						$tulis .= "
 		var ".$field->name."_field = Ext.create('Ext.form.field.TextArea', {
 			name: '".$field->name."', /* column name of table */
-			fieldLabel: '".$field->name."',
-			allowBlank: true";
+			fieldLabel: '".$field->name."'";
 			if(isset($field->max_length)){
 				$tulis .= ",
 			maxLength: ".$field->max_length." /* length of column name */";
@@ -3023,8 +2808,7 @@ foreach($data['fields'] as $field)
 						$tulis .= "
 		var ".$field->name."_field = Ext.create('Ext.form.field.Text', {
 			name: '".$field->name."', /* column name of table */
-			fieldLabel: '".$field->name."',
-			allowBlank: true";
+			fieldLabel: '".$field->name."'";
 			if(isset($field->max_length)){
 				$tulis .= ",
 			maxLength: ".$field->max_length." /* length of column name */";
@@ -3036,38 +2820,25 @@ foreach($data['fields'] as $field)
 			}
 			else
 			{
-				if($field->type == "date")
+				if($field->type == "date" || $field->type == "datetime")
 				{
 					$tulis .= "
 		var ".$field->name."_field = Ext.create('Ext.form.field.Date', {
 			itemId: '".$field->name."_field',
 			name: '".$field->name."', /* column name of table */
 			fieldLabel: '".$field->name."',
-			allowBlank: true,
-			format: 'Y-m-d'
+			format: 'Y-m-d',
+			allowBlank: false /* jika primary_key */
 		});";
 				}
-				elseif($field->type == "datetime" || $field->type == "timestamp")
-				{
-					$tulis .= "
-		var ".$field->name."_field = Ext.create('Ext.form.field.Date', {
-			itemId: '".$field->name."_field',
-			name: '".$field->name."', /* column name of table */
-			fieldLabel: '".$field->name."',
-			allowBlank: true, /* jika primary_key */
-			fieldLabel: '".$field->name."',
-			format: 'Y-m-d H:i:s'
-		});";
-				}
-				elseif($field->type == "int" || $field->type == "tinyint" || $field->type == "smallint"
-					|| $field->type == "bigint" )
+				elseif($field->type == "int")
 				{
 					$tulis .= "
 		var ".$field->name."_field = Ext.create('Ext.form.field.Number', {
 			itemId: '".$field->name."_field',
 			name: '".$field->name."', /* column name of table */
 			fieldLabel: '".$field->name."',
-			allowBlank: true";
+			allowBlank: false /* jika primary_key */";
 			if(isset($field->max_length)){
 				$tulis .= ",
 			maxLength: ".$field->max_length." /* length of column name */";
@@ -3075,15 +2846,13 @@ foreach($data['fields'] as $field)
 		$tulis .= "
 		});";
 				}
-				elseif($field->type == "decimal" || $field->type == "float"
-					|| $field->type == "double" )
+				elseif($field->type == "decimal")
 				{
 					$tulis .= "
 		var ".$field->name."_field = Ext.create('Ext.ux.form.NumericField', {
 			itemId: '".$field->name."_field',
 			name: '".$field->name."', /* column name of table */
 			fieldLabel: '".$field->name."',
-			allowBlank: true,
 			useThousandSeparator: true,
 			decimalPrecision: 2,
 			alwaysDisplayDecimals: true,
@@ -3094,45 +2863,43 @@ foreach($data['fields'] as $field)
 				}
 				else
 				{
-					if($field->type == "text")
+					if($field->max_length > 20)
 					{
 						$tulis .= "
 		var ".$field->name."_field = Ext.create('Ext.form.field.TextArea', {
 			itemId: '".$field->name."_field',
 			name: '".$field->name."', /* column name of table */
 			fieldLabel: '".$field->name."',
-			allowBlank: true";
+			allowBlank: false /* jika primary_key */";
 			if(isset($field->max_length)){
-				$tulis .= ",
-			maxLength: ".$field->max_length." /* length of column name */";
+				$tulis .= "
+			,maxLength: ".$field->max_length." /* length of column name */";
 			}
 			$tulis .= "
 		});";
 					}
 					else
-					{
 						$tulis .= "
 		var ".$field->name."_field = Ext.create('Ext.form.field.Text', {
 			itemId: '".$field->name."_field',
 			name: '".$field->name."', /* column name of table */
 			fieldLabel: '".$field->name."',
-			allowBlank: true";
+			allowBlank: false /* jika primary_key */";
 			if(isset($field->max_length)){
 				$tulis .= ",
 			maxLength: ".$field->max_length." /* length of column name */";
 			}
 			$tulis .= "
 		});";
-					}
 				}
 					
 			}		
 		}
-		
+		 
 		$tulis .= "
 		
 		var statusbar_info = Ext.create('Ext.Component', {
-			id: 'formErrorState".strtoupper(substr($nfile, 2))."',
+			id: 'formErrorState".strtoupper($nfile)."',
 			invalidCls: Ext.baseCSSPrefix + 'form-invalid-icon',
 			validCls: Ext.baseCSSPrefix + 'dd-drop-icon',
 			baseCls: 'form-error-state',
@@ -3183,7 +2950,7 @@ foreach($data['fields'] as $field)
 					errorCmp, fields, errors;
 				
 				if (me.hasBeenDirty || me.getForm().isDirty()) { //prevents showing global error when form first loads
-					errorCmp = me.down('#formErrorState".strtoupper(substr($nfile, 2))."');
+					errorCmp = me.down('#formErrorState".strtoupper($nfile)."');
 					fields = me.getForm().getFields();
 					errors = [];
 					fields.each(function(field) {
@@ -3198,21 +2965,7 @@ foreach($data['fields'] as $field)
             items: [";
 			foreach($data['fields'] as $field)
 			{
-				if($field->type == "bpchar" && substr($field->name, -6) == "_aktif"){
-					$tulis .= "
-				{
-					xtype: 'fieldcontainer',
-                	fieldLabel: 'Aktif?',
-                	layout: 'hbox',
-                	defaultType: 'textfield',
-                	defaults: {
-                		hideLabel: true
-                	},
-                	items: [".$field->name."_field]
-				},";
-				}else{
-					$tulis .= "".$field->name."_field,";
-				}
+				$tulis .= "".$field->name."_field,";
 			}
 			
 			$tulis = substr($tulis,0,strlen($tulis) -1);
@@ -3254,16 +3007,15 @@ foreach($data['fields'] as $field)
 	//Generate Viewport Extjs
 	function CViewportSF($path,$nfile,$tbl,$data){
 		$tulis = "Ext.define('INVENT.view.".$data['pathjs'].".".strtoupper($nfile)."', {
-	extend		: 'Ext.tab.Panel',
-	id			: '".$data['pathjs'].".view.".strtoupper($nfile)."',
+	extend: 'Ext.tab.Panel',
 	
-	alias		: 'widget.".strtoupper($nfile)."',
+	alias	: 'widget.".strtoupper($nfile)."',
 	
-	title		: '".$nfile."',
-	margins		: 0,
-	tabPosition	: 'right',
-	activeTab	: 0,
-	closable	: true,
+	title	: '".$nfile."',
+	margins: 0,
+	tabPosition: 'right',
+	activeTab: 0,
+	
 	initComponent: function(){
 		Ext.apply(this, {
             items: [{

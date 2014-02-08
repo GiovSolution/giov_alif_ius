@@ -45,7 +45,7 @@
 
 <h1>Table: <?php print $table;?></h1>
 
-<table class="gridtable" cellspacing="0" summary="INVENT - detail_order_beli">
+<table class="gridtable" cellspacing="0" summary="TRANSAKSI - detail_order_beli">
 	<tr>
 		<?php 
 		foreach ($records[0] as $key => $value){

@@ -2,7 +2,7 @@ Ext.define('INVENT.view.TRANSAKSI.v_master_order_beli', {
 	extend: 'Ext.grid.Panel',
 	requires: ['INVENT.store.s_master_order_beli'],
 	
-	title		: 'Grid master_order_beli',
+	title		: 'master_order_beli',
 	itemId		: 'v_master_order_beli',
 	alias       : 'widget.v_master_order_beli',
 	store 		: 's_master_order_beli',
@@ -23,11 +23,7 @@ Ext.define('INVENT.view.TRANSAKSI.v_master_order_beli', {
 				dataIndex: 'order_no'
 			},{
 				header: 'Supplier',
-				dataIndex: 'order_supplier',
-				renderer: function(value, metaData, record, rowIndex, colIndex, store){
-					var data = record.data;
-					return '['+data.order_supplier+'] - '+data.supplier_nama;
-				}
+				dataIndex: 'order_supplier'
 			},{
 				header: 'Tanggal',
 				dataIndex: 'order_tanggal',
@@ -43,32 +39,16 @@ Ext.define('INVENT.view.TRANSAKSI.v_master_order_beli', {
 				dataIndex: 'order_cashback'
 			}*/,{
 				header: 'Total',
-				dataIndex: 'order_totalbiaya',
-				align: 'right',
-				style: 'text-align:center',
-				renderer: function(value){
-					return Ext.util.Format.currency(value, ' ', 2);
-				}
+				dataIndex: 'order_totalbiaya'
 			}/*,{
 				header: 'order_ttlbiaya_lain2',
 				dataIndex: 'order_ttlbiaya_lain2'
 			}*/,{
 				header: 'Uang Muka',
-				dataIndex: 'order_dp',
-				align: 'right',
-				style: 'text-align:center',
-				renderer: function(value){
-					return Ext.util.Format.currency(value, ' ', 2);
-				}
+				dataIndex: 'order_dp'
 			},{
 				header: 'Jumlah Hutang',
-				dataIndex: 'order_sisa_bayar',
-				align: 'right',
-				style: 'text-align:center',
-				width: 120,
-				renderer: function(value){
-					return Ext.util.Format.currency(value, ' ', 2);
-				}
+				dataIndex: 'order_sisa_bayar'
 			},{
 				header: 'Keterangan',
 				dataIndex: 'order_keterangan'

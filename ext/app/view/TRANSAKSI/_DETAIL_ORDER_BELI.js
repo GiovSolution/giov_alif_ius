@@ -1,12 +1,8 @@
 Ext.define('INVENT.view.TRANSAKSI.DETAIL_ORDER_BELI', {
-	extend		: 'Ext.form.Panel',
+	extend: 'Ext.form.Panel',
 	
-	alias		: 'widget.DETAIL_ORDER_BELI',
-	
-	title		: 'detail_order_beli',
-	bodyPadding	: 0,
-	layout		: 'border',
-	closable	: true,
+	bodyPadding: 0,
+	layout: 'border',
 	initComponent: function(){
 		this.items = [{
 			region: 'center',

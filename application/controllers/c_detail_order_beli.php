@@ -14,11 +14,13 @@ class C_detail_order_beli extends CI_Controller {
 		$start  =   ($this->input->post('start', TRUE) ? $this->input->post('start', TRUE) : 0);
 		$page   =   ($this->input->post('page', TRUE) ? $this->input->post('page', TRUE) : 1);
 		$limit  =   ($this->input->post('limit', TRUE) ? $this->input->post('limit', TRUE) : 15);
+		$query  =   ($this->input->post('query', TRUE) ? $this->input->post('query', TRUE) : '');
+		$filter	= 	($this->input->post('filter', TRUE) ? $this->input->post('filter', TRUE) : '');
 		
 		/*
 		 * Processing Data
 		 */
-		$result = $this->m_detail_order_beli->getAll($start, $page, $limit);
+		$result = $this->m_detail_order_beli->getAll($start, $page, $limit, $query, $filter);
 		echo json_encode($result);
 	}
 	

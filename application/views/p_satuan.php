@@ -87,8 +87,8 @@
 </head>
 
 <body>
-<table id="mytable" cellspacing="0" summary="TRANSAKSI - master_order_beli">
-<caption>Table: master_order_beli </caption>
+<table id="mytable" cellspacing="0" summary="INVENT - satuan">
+<caption>Table: satuan </caption>
   <tr>
 	<?php 
 	$i = 0;

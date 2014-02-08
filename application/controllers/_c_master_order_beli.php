@@ -1,10 +1,10 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class C_produk extends CI_Controller {
+class C_master_order_beli extends CI_Controller {
 	
 	function __construct(){
 		parent::__construct();		
-		$this->load->model('m_produk', '', TRUE);
+		$this->load->model('m_master_order_beli', '', TRUE);
 	}
 	
 	function getAll(){
@@ -14,38 +14,37 @@ class C_produk extends CI_Controller {
 		$start  =   ($this->input->post('start', TRUE) ? $this->input->post('start', TRUE) : 0);
 		$page   =   ($this->input->post('page', TRUE) ? $this->input->post('page', TRUE) : 1);
 		$limit  =   ($this->input->post('limit', TRUE) ? $this->input->post('limit', TRUE) : 15);
-		$query  =   ($this->input->post('query', TRUE) ? $this->input->post('query', TRUE) : '');
 		
 		/*
 		 * Processing Data
 		 */
-		$result = $this->m_produk->getAll($start, $page, $limit, $query);
+		$result = $this->m_master_order_beli->getAll($start, $page, $limit);
 		echo json_encode($result);
 	}
 	
 	function save(){
 		/*
-		 * Collect Data ==> diambil dari [model.produk]
+		 * Collect Data ==> diambil dari [model.master_order_beli]
 		 */
 		$data   = json_decode($this->input->post('data',TRUE));
 		
 		/*
 		 * Processing Data
 		 */
-		$result = $this->m_produk->save($data);
+		$result = $this->m_master_order_beli->save($data);
 		echo json_encode($result);
 	}
 	
 	function delete(){
 		/*
-		 * Collect Data ==> diambil dari [model.produk]
+		 * Collect Data ==> diambil dari [model.master_order_beli]
 		 */
 		$data   = json_decode($this->input->post('data',TRUE));
 		
 		/*
 		 * Processing Data
 		 */
-		$result = $this->m_produk->delete($data);
+		$result = $this->m_master_order_beli->delete($data);
 		echo json_encode($result);
 	}
 	
@@ -81,7 +80,7 @@ class C_produk extends CI_Controller {
 			{
 				$cellvalue = $record->$key;
 				
-				if($key == strtoupper('produk')){
+				if($key == strtoupper('master_order_beli')){
 					$this->excel->getActiveSheet()->getCell(chr($col).$row)->setValueExplicit($cellvalue, PHPExcel_Cell_DataType::TYPE_STRING);
 				}else{
 					$this->excel->getActiveSheet()->setCellValue(chr($col).$row, $cellvalue);
@@ -93,7 +92,7 @@ class C_produk extends CI_Controller {
 			$row++;
 		}		
 		
-		$filename='produk.xlsx'; //save our workbook as this file name
+		$filename='master_order_beli.xlsx'; //save our workbook as this file name
 		//header('Content-Type: application/vnd.ms-excel'); //mime type for Excel5
 		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); //mime type for Excel2007
 		header('Content-Disposition: attachment;filename="'.$filename.'"'); //tell browser what's the file name
@@ -110,7 +109,7 @@ class C_produk extends CI_Controller {
 	function export2PDF(){
 		$getdata = json_decode($this->input->post('data',TRUE));
 		$data["records"] = $getdata;
-		$data["table"] = "produk";
+		$data["table"] = "master_order_beli";
 		
 		//html2pdf
 		//Load the library
@@ -120,13 +119,13 @@ class C_produk extends CI_Controller {
 		$this->html2pdf->folder('./temp/');
 		
 		//Set the filename to save/download as
-		$this->html2pdf->filename('produk.pdf');
+		$this->html2pdf->filename('master_order_beli.pdf');
 		
 		//Set the paper defaults
 		$this->html2pdf->paper('a4', 'portrait');
 		
 		//Load html view
-		$this->html2pdf->html($this->load->view('pdf_produk', $data, true));
+		$this->html2pdf->html($this->load->view('pdf_master_order_beli', $data, true));
 		
 		if($path = $this->html2pdf->create('save')) {
 			//PDF was successfully saved or downloaded
@@ -137,12 +136,12 @@ class C_produk extends CI_Controller {
 	function printRecords(){
 		$getdata = json_decode($this->input->post('data',TRUE));
 		$data["records"] = $getdata;
-		$data["table"] = "produk";
-		$print_view=$this->load->view("p_produk.php",$data,TRUE);
+		$data["table"] = "master_order_beli";
+		$print_view=$this->load->view("p_master_order_beli.php",$data,TRUE);
 		if(!file_exists("temp")){
 			mkdir("temp");
 		}
-		$print_file=fopen("temp/produk.html","w+");
+		$print_file=fopen("temp/master_order_beli.html","w+");
 		fwrite($print_file, $print_view);
 		echo '1';
 	}	

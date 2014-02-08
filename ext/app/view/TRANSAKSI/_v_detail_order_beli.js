@@ -14,14 +14,13 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 	selectedIndex: -1,
 	minHeight	: 170,
 	
-	order_status_temp: 'terbuka',
 	rowediting_status: 'undefined',
 	
 	initComponent: function(){
 		var me = this;
 		
-		var dorder_id_field = Ext.create('Ext.form.field.Text', {
-			allowBlank : true,
+		var dorder_id_field = Ext.create('Ext.form.field.Number', {
+			allowBlank : false,
 			maxLength: 11 /* length of column name */
 		});
 		var produk_id_field = Ext.create('Ext.form.field.ComboBox', {
@@ -54,7 +53,6 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 			forceSelection:true,
 			listeners: {
 				select: function(combo, records, e){
-					dorder_produk_nama_field.setValue(records[0].data.produk_nama);
 					satuan_id_field.focus(false, true);
 				},
 				specialkey: function(field, e){
@@ -68,7 +66,6 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 				}
 			}
 		});
-		var dorder_produk_nama_field = Ext.create('Ext.form.field.Text');
 		var satuan_id_field = Ext.create('Ext.form.field.ComboBox', {
 			store: 'INVENT.store.s_satuan',
 			queryMode: 'remote',
@@ -98,7 +95,6 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 			forceSelection:true,
 			listeners: {
 				select: function(combo, records, e){
-					dorder_satuan_nama_field.setValue(records[0].data.satuan_nama);
 					dorder_jumlah_field.focus(false, true);
 				},
 				specialkey: function(field, e){
@@ -112,7 +108,6 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 				}
 			}
 		});
-		var dorder_satuan_nama_field = Ext.create('Ext.form.field.Text');
 		var dorder_jumlah_field = Ext.create('Ext.ux.form.NumericField', {
 			useThousandSeparator: true,
 			decimalPrecision: 0,
@@ -135,7 +130,7 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 						e.stopEvent();
 						field.triggerBlur();
 						field.blur();
-						dorder_harga_field.focus(false, true);
+						dorder_jumlah_field.focus(false, true);
 						
 					}
 					
@@ -219,11 +214,12 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 				},
 				'canceledit': function(editor, e){
 					me.rowediting_status = 'afterediting';
-					
-					if (! produk_id_field.findRecordByValue(produk_id_field.getValue())) {
+					e.store.removeAt(0);
+					/*if (! produk_id_field.findRecordByValue(produk_id_field.getValue())) {
 						editor.cancelEdit();
+						console.log(e.rowIdx);
 						e.store.removeAt(e.rowIdx);
-					}
+					}*/
 					
 				},
 				'validateedit': function(editor, e){
@@ -253,14 +249,9 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 				style: 'text-align:center',
 				renderer: function(value, metaData, record, rowIndex, colIndex, store){
 					var data = record.data;
-					return '['+data.dorder_produk+'] - '+data.dorder_produk_nama;
+					return '['+data.dorder_produk+'] - '+data.dorder_produk;
 				},
 				field: produk_id_field
-			},{
-				header: 'produk_nama',
-				dataIndex: 'dorder_produk_nama',
-				hidden: true,
-				field: dorder_produk_nama_field
 			},{
 				header: 'Satuan',
 				dataIndex: 'dorder_satuan',
@@ -268,14 +259,9 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 				style: 'text-align:center',
 				renderer: function(value, metaData, record, rowIndex, colIndex, store){
 					var data = record.data;
-					return '['+data.dorder_satuan+'] - '+data.dorder_satuan_nama;
+					return '['+data.dorder_satuan+'] - '+data.dorder_satuan;
 				},
 				field: satuan_id_field
-			},{
-				header: 'satuan_nama',
-				dataIndex: 'dorder_satuan_nama',
-				hidden: true,
-				field: dorder_satuan_nama_field
 			},{
 				header: 'Jumlah',
 				dataIndex: 'dorder_jumlah',
@@ -294,14 +280,12 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 			},{
 				header: 'Diskon(%)',
 				dataIndex: 'dorder_diskon',
-				width: 80,
 				align: 'right',
 				style: 'text-align:center',
 				field: dorder_diskon_field
 			},{
 				header: 'Sub Total(Rp)',
 				dataIndex: 'dorder_subtotal',
-				flex: 1,
 				align: 'right',
 				style: 'text-align:center',
 				renderer: function(value){
@@ -324,8 +308,7 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 						itemId	: 'btncreate',
 						text	: 'Add',
 						iconCls	: 'icon-add',
-						action	: 'create',
-						disabled: true
+						action	: 'create'
 					}, {
 						xtype: 'splitter'
 					}, {
@@ -367,8 +350,8 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 		];
 		this.callParent(arguments);
 		
-		this.on('itemclick', this.gridSelection);
-		this.getView().on('refresh', this.refreshSelection, this);
+		//this.on('itemclick', this.gridSelection);
+		//this.getView().on('refresh', this.refreshSelection, this);
 		this.on('beforeselect', function(thisme, record, index, eOpts){
 			if (me.rowediting_status == 'editing') {
 				return false;

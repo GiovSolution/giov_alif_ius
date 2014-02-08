@@ -23,20 +23,66 @@ class M_detail_order_beli extends CI_Model{
 	 * @param number $limit
 	 * @return json
 	 */
-	function getAll($start, $page, $limit){
-		$query  = $this->db->limit($limit, $start)->order_by('dorder_id', 'ASC')->get('detail_order_beli')->result();
-		$total  = $this->db->get('detail_order_beli')->num_rows();
+	function getAll($start, $page, $limit, $query, $filter){
+		$select = "SELECT dorder_id,dorder_master
+			,dorder_produk,dorder_produk_nama
+			,dorder_satuan,dorder_satuan_nama
+			,dorder_jumlah
+			,dorder_harga,dorder_diskon,dorder_harga_log
+			,dorder_subtotal";
+		$selecttotal= "SELECT COUNT(*) AS total";
+		$from 		= " FROM detail_order_beli";
+		$orderby	= " ORDER BY dorder_id";
+		$limited 	= " LIMIT ".$start.",".$limit;
+		
+		// For simple search 
+		if ($query<>""){
+			$from .= preg_match("/WHERE/i",$from)? " AND ":" WHERE ";
+			$from .= "(";
+			if(is_numeric($query)){
+				$from .= " dorder_id = ".addslashes(strtolower($query))." OR";
+			}
+			if(! is_numeric($query)){
+				$from .= " lower(dorder_master) LIKE '%".addslashes(strtolower($query))."%' OR";
+			}
+			if(! is_numeric($query)){
+				$from .= " lower(dorder_produk) LIKE '%".addslashes(strtolower($query))."%' OR";
+			}
+			if(! is_numeric($query)){
+				$from .= " lower(dorder_satuan) LIKE '%".addslashes(strtolower($query))."%' OR";
+			}
+			if(! is_numeric($query)){
+				$from .= " lower(dorder_jumlah) LIKE '%".addslashes(strtolower($query))."%' OR";
+			}
+			if(! is_numeric($query)){
+				$from .= " lower(dorder_harga) LIKE '%".addslashes(strtolower($query))."%' OR";
+			}
+			if(! is_numeric($query)){
+				$from .= " lower(dorder_diskon) LIKE '%".addslashes(strtolower($query))."%' OR";
+			}
+			if(! is_numeric($query)){
+				$from .= " lower(dorder_harga_log) LIKE '%".addslashes(strtolower($query))."%' OR";
+			}
+			$from = substr($from,0,strlen($from) -2);
+			$from .= ")";
+		}
+		
+		$sql = $select.$from.$orderby.$limited;
+		$sql_total = $selecttotal.$from;
+		
+		$result  = $this->db->query($sql)->result();
+		$total  = $this->db->query($sql_total)->row()->total;
 		
 		$data   = array();
-		foreach($query as $result){
-			$data[] = $result;
+		foreach($result as $row){
+			$data[] = $row;
 		}
 		
 		$json	= array(
-						'success'   => TRUE,
-						'message'   => "Loaded data",
-						'total'     => $total,
-						'data'      => $data
+			'success'   => TRUE,
+			'message'   => "Loaded data",
+			'total'     => $total,
+			'data'      => $data
 		);
 		
 		return $json;
@@ -55,13 +101,31 @@ class M_detail_order_beli extends CI_Model{
 		
 		$pkey = array('dorder_id'=>$data->dorder_id);
 		
+		$arrdatacu = array(
+			'dorder_master'=>$data->dorder_master,
+			'dorder_produk'=>$data->dorder_produk,
+			'dorder_satuan'=>$data->dorder_satuan,
+			'dorder_jumlah'=>$data->dorder_jumlah,
+			'dorder_harga'=>$data->dorder_harga,
+			'dorder_diskon'=>$data->dorder_diskon,
+			'dorder_harga_log'=>$data->dorder_harga_log
+		);
+		
+		$arrdataupdated = array(
+		);
+		
+		$arrdatau = array_merge($arrdatacu, $arrdataupdated);
+		
+		$arrdatacreated = array(
+		);
+		
+		$arrdatac = array_merge($arrdatacu, $arrdatacreated);
+		
 		if($this->db->get_where('detail_order_beli', $pkey)->num_rows() > 0){
 			/*
 			 * Data Exist
 			 */
 			
-			$arrdatau = array('dorder_master'=>$data->dorder_master,'dorder_produk'=>$data->dorder_produk,'dorder_satuan'=>$data->dorder_satuan,'dorder_jumlah'=>$data->dorder_jumlah,'dorder_harga'=>$data->dorder_harga,'dorder_diskon'=>$data->dorder_diskon,'dorder_harga_log'=>$data->dorder_harga_log);
-			 
 			$this->db->where($pkey)->update('detail_order_beli', $arrdatau);
 			$last   = $data;
 			
@@ -72,8 +136,6 @@ class M_detail_order_beli extends CI_Model{
 			 * Process Insert
 			 */
 			
-			$arrdatac = array('dorder_id'=>$data->dorder_id,'dorder_master'=>$data->dorder_master,'dorder_produk'=>$data->dorder_produk,'dorder_satuan'=>$data->dorder_satuan,'dorder_jumlah'=>$data->dorder_jumlah,'dorder_harga'=>$data->dorder_harga,'dorder_diskon'=>$data->dorder_diskon,'dorder_harga_log'=>$data->dorder_harga_log);
-			 
 			$this->db->insert('detail_order_beli', $arrdatac);
 			$last   = $this->db->where($pkey)->get('detail_order_beli')->row();
 			
@@ -82,10 +144,10 @@ class M_detail_order_beli extends CI_Model{
 		$total  = $this->db->get('detail_order_beli')->num_rows();
 		
 		$json   = array(
-						"success"   => TRUE,
-						"message"   => 'Data berhasil disimpan',
-						"total"     => $total,
-						"data"      => $last
+			"success"   => TRUE,
+			"message"   => 'Data berhasil disimpan',
+			"total"     => $total,
+			"data"      => $last
 		);
 		
 		return $json;
@@ -108,10 +170,10 @@ class M_detail_order_beli extends CI_Model{
 		$last = $this->db->get('detail_order_beli')->result();
 		
 		$json   = array(
-						"success"   => TRUE,
-						"message"   => 'Data berhasil dihapus',
-						"total"     => $total,
-						"data"      => $last
+			"success"   => TRUE,
+			"message"   => 'Data berhasil dihapus',
+			"total"     => $total,
+			"data"      => $last
 		);				
 		return $json;
 	}

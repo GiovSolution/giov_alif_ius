@@ -1,14 +1,13 @@
 Ext.define('INVENT.view.TRANSAKSI.MASTER_ORDER_BELI', {
-	extend		: 'Ext.tab.Panel',
-	id			: 'TRANSAKSI.view.MASTER_ORDER_BELI',
+	extend: 'Ext.tab.Panel',
 	
-	alias		: 'widget.MASTER_ORDER_BELI',
+	alias	: 'widget.MASTER_ORDER_BELI',
 	
-	title		: 'master_order_beli',
-	margins		: 0,
-	tabPosition	: 'right',
-	activeTab	: 0,
-	closable	: true,
+	title	: 'Order Pembelian',
+	margins: 0,
+	tabPosition: 'right',
+	activeTab: 0,
+	
 	initComponent: function(){
 		Ext.apply(this, {
             items: [{

@@ -23,9 +23,53 @@ class M_produk extends CI_Model{
 	 * @param number $limit
 	 * @return json
 	 */
-	function getAll($start, $page, $limit){
-		$result  = $this->db->limit($limit, $start)->order_by('produk_id', 'ASC')->get('produk')->result();
-		$total  = $this->db->get('produk')->num_rows();
+	function getAll($start, $page, $limit, $query){
+		//$result  = $this->db->limit($limit, $start)->order_by('produk_id', 'ASC')->get('produk')->result();
+		$select = "SELECT produk_id
+			,produk_kode
+			,produk_group
+			,produk_kategori
+			,produk_nama
+			,produk_satuan
+			,produk_harga
+			,produk_volume
+			,produk_jenis
+			,produk_keterangan
+			,produk_bpom
+			,produk_aktif
+			,produk_saldo_awal
+			,produk_nilai_saldo_awal
+			,produk_tgl_nilai_saldo_awal
+			,produk_creator
+			,produk_date_create
+			,produk_update
+			,produk_aktif_cabang
+			,produk_date_update
+			,produk_revised";
+		$selecttotal= "SELECT COUNT(*) AS total";
+		$from 		= " FROM produk";
+		$orderby	= " ORDER BY produk_id";
+		$limited 	= " LIMIT ".$start.",".$limit;
+		
+		// For simple search 
+		if ($query<>""){
+			$from .= preg_match("/WHERE/i",$from)? " AND ":" WHERE ";
+			$from .= "(";
+			if(is_numeric($query)){
+				$from .= " produk_id = ".addslashes(strtolower($query))." AND";
+			}
+			if(! is_numeric($query)){
+				$from .= " lower(produk_nama) LIKE '%".addslashes(strtolower($query))."%' OR";
+			}
+			$from = substr($from, 0, strrpos($from, ' '));
+			$from .= ")";
+		}
+		
+		$sql = $select.$from.$orderby.$limited;
+		$sql_total = $selecttotal.$from;
+		
+		$result  = $this->db->query($sql)->result();
+		$total  = $this->db->query($sql_total)->row()->total;
 		
 		$data   = array();
 		foreach($result as $row){

@@ -14,11 +14,13 @@ class C_master_order_beli extends CI_Controller {
 		$start  =   ($this->input->post('start', TRUE) ? $this->input->post('start', TRUE) : 0);
 		$page   =   ($this->input->post('page', TRUE) ? $this->input->post('page', TRUE) : 1);
 		$limit  =   ($this->input->post('limit', TRUE) ? $this->input->post('limit', TRUE) : 15);
+		$query  =   ($this->input->post('query', TRUE) ? $this->input->post('query', TRUE) : '');
+		$filter	= 	($this->input->post('filter', TRUE) ? $this->input->post('filter', TRUE) : '');
 		
 		/*
 		 * Processing Data
 		 */
-		$result = $this->m_master_order_beli->getAll($start, $page, $limit);
+		$result = $this->m_master_order_beli->getAll($start, $page, $limit, $query, $filter);
 		echo json_encode($result);
 	}
 	
@@ -144,5 +146,28 @@ class C_master_order_beli extends CI_Controller {
 		$print_file=fopen("temp/master_order_beli.html","w+");
 		fwrite($print_file, $print_view);
 		echo '1';
-	}	
+	}
+	
+	function printForm(){
+		$order_id = ($this->input->post('orderid', TRUE) ? $this->input->post('orderid', TRUE) : 0);
+		
+		//$info = $this->m_public_function->get_info();
+		$result = $this->m_master_order_beli->printForm($order_id);
+		$data["records"] = $result;
+		//$data["info"] = $info;
+		$data["table"] = "t_jual";
+		$print_view=$this->load->view("p_master_order_beli_form.php",$data,TRUE);
+		if(!file_exists("temp")){
+			mkdir("temp");
+		}
+		$print_file=fopen("temp/master_order_beli_form_".$this->session->userdata('user_id').".html","w+");
+		fwrite($print_file, $print_view);
+		
+		$json   = array(
+			"success"   => TRUE,
+			"message"   => 'Data siap dicetak.',
+			"userid"  	=> $this->session->userdata('user_id')
+		);	
+		echo json_encode($json);
+	}
 }

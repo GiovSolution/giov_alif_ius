@@ -3,6 +3,9 @@ Ext.define('INVENT.view.TRANSAKSI.v_master_order_beli_form', {
 	
 	alias	: 'widget.v_master_order_beli_form',
 	
+	region:'east',
+	id: 'east-region-container',
+	
 	title		: 'Create/Update master_order_beli',
     bodyPadding	: 5,
     autoScroll	: true,
@@ -99,7 +102,7 @@ Ext.define('INVENT.view.TRANSAKSI.v_master_order_beli_form', {
 				}
 			}
 		});
-		var order_tanggal_field = Ext.create('Ext.ux.form.DateTimeField', {
+		var order_tanggal_field = Ext.create('Ext.form.field.Date', {
 			itemId: 'order_tanggal_field',
 			name: 'order_tanggal', /* column name of table */
 			format: 'l, j F Y',
@@ -157,7 +160,7 @@ Ext.define('INVENT.view.TRANSAKSI.v_master_order_beli_form', {
 			fieldLabel: 'order_ttlbiaya_lain2'
 		});
 		var order_dp_cffield = Ext.create('Ext.ux.form.NumericField', {
-			itemId: 'order_dp_cffield',
+			itemId: 'order_dp_field',
 			name: 'order_dp',
 			fieldLabel: 'Uang Muka',
 			useThousandSeparator: true,
@@ -169,15 +172,10 @@ Ext.define('INVENT.view.TRANSAKSI.v_master_order_beli_form', {
 			enableKeyEvents: true,
 			readOnly: false,
 			fieldStyle: 'font-size: 10pt;font-weight: bold;text-align:right;',
-			labelStyle: 'font-size: 10pt;font-weight: bold;',
-			listeners: {
-				change: function(field, newValue, oldValue, e){
-					order_sisa_bayar_cffield.setValue(order_totalbiaya_cffield.getValue() - newValue);
-				}
-			}
+			labelStyle: 'font-size: 10pt;font-weight: bold;'
 		});
-		var order_sisa_bayar_cffield = Ext.create('Ext.ux.form.NumericField', {
-			itemId: 'order_sisa_bayar_cffield',
+		var order_sisa_bayar_field = Ext.create('Ext.ux.form.NumericField', {
+			itemId: 'order_sisa_bayar_field',
 			name: 'order_sisa_bayar', /* column name of table */
 			fieldLabel: 'Jumlah Hutang',
 			useThousandSeparator: true,
@@ -286,7 +284,7 @@ Ext.define('INVENT.view.TRANSAKSI.v_master_order_beli_form', {
 		});
 		
 		var statusbar_info = Ext.create('Ext.Component', {
-			id: 'formErrorStateSTER_ORDER_BELI',
+			id: 'formErrorStateMASTER_ORDER_BELI',
 			invalidCls: Ext.baseCSSPrefix + 'form-invalid-icon',
 			validCls: Ext.baseCSSPrefix + 'dd-drop-icon',
 			baseCls: 'form-error-state',
@@ -337,7 +335,7 @@ Ext.define('INVENT.view.TRANSAKSI.v_master_order_beli_form', {
 					errorCmp, fields, errors;
 				
 				if (me.hasBeenDirty || me.getForm().isDirty()) { //prevents showing global error when form first loads
-					errorCmp = me.down('#formErrorStateSTER_ORDER_BELI');
+					errorCmp = me.down('#formErrorStateMASTER_ORDER_BELI');
 					fields = me.getForm().getFields();
 					errors = [];
 					fields.each(function(field) {
@@ -389,7 +387,7 @@ Ext.define('INVENT.view.TRANSAKSI.v_master_order_beli_form', {
 								hideLabel: true
 							},
 							items: [order_status_field]
-						},order_totalbiaya_cffield,order_dp_cffield,order_sisa_bayar_cffield
+						},order_totalbiaya_cffield,order_dp_cffield,order_sisa_bayar_field
 					]
 				}]
 			}, detail_tabs],
