@@ -15,12 +15,12 @@ class C_detail_order_beli extends CI_Controller {
 		$page   =   ($this->input->post('page', TRUE) ? $this->input->post('page', TRUE) : 1);
 		$limit  =   ($this->input->post('limit', TRUE) ? $this->input->post('limit', TRUE) : 15);
 		$query  =   ($this->input->post('query', TRUE) ? $this->input->post('query', TRUE) : '');
-		$filter	= 	($this->input->post('filter', TRUE) ? $this->input->post('filter', TRUE) : '');
+		$masterid  =   ($this->input->post('masterid', TRUE) ? $this->input->post('masterid', TRUE) : 15);
 		
 		/*
 		 * Processing Data
 		 */
-		$result = $this->m_detail_order_beli->getAll($start, $page, $limit, $query, $filter);
+		$result = $this->m_detail_order_beli->getAll($start, $page, $limit, $query, $masterid);
 		echo json_encode($result);
 	}
 	

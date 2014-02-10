@@ -23,7 +23,7 @@ class M_detail_order_beli extends CI_Model{
 	 * @param number $limit
 	 * @return json
 	 */
-	function getAll($start, $page, $limit, $query, $filter){
+	function getAll($start, $page, $limit, $query, $masterid){
 		$select = "SELECT dorder_id,dorder_master
 			,dorder_produk,dorder_produk_nama
 			,dorder_satuan,dorder_satuan_nama
@@ -34,6 +34,11 @@ class M_detail_order_beli extends CI_Model{
 		$from 		= " FROM detail_order_beli";
 		$orderby	= " ORDER BY dorder_id";
 		$limited 	= " LIMIT ".$start.",".$limit;
+		
+		if($masterid<>''){
+			$from .= preg_match("/WHERE/i",$from)? " AND ":" WHERE ";
+			$from .= "(detail_order_beli.dorder_master = '".$masterid."')";
+		}
 		
 		// For simple search 
 		if ($query<>""){
