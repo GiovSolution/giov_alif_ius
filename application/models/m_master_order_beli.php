@@ -40,63 +40,12 @@ class M_master_order_beli extends CI_Model{
 			$from .= preg_match("/WHERE/i",$from)? " AND ":" WHERE ";
 			$from .= "(";
 			if(is_numeric($query)){
-				$from .= " order_id = ".addslashes(strtolower($query))." OR";
+				$from .= " order_id = ".addslashes(strtolower($query))." AND";
 			}
 			if(! is_numeric($query)){
 				$from .= " lower(order_no) LIKE '%".addslashes(strtolower($query))."%' OR";
 			}
-			if(! is_numeric($query)){
-				$from .= " lower(order_supplier) LIKE '%".addslashes(strtolower($query))."%' OR";
-			}
-			if(! is_numeric($query)){
-				$from .= " lower(order_tanggal) LIKE '%".addslashes(strtolower($query))."%' OR";
-			}
-			if(! is_numeric($query)){
-				$from .= " lower(order_carabayar) LIKE '%".addslashes(strtolower($query))."%' OR";
-			}
-			if(! is_numeric($query)){
-				$from .= " lower(order_diskon) LIKE '%".addslashes(strtolower($query))."%' OR";
-			}
-			if(! is_numeric($query)){
-				$from .= " lower(order_cashback) LIKE '%".addslashes(strtolower($query))."%' OR";
-			}
-			if(! is_numeric($query)){
-				$from .= " lower(order_totalbiaya) LIKE '%".addslashes(strtolower($query))."%' OR";
-			}
-			if(! is_numeric($query)){
-				$from .= " lower(order_ttlbiaya_lain2) LIKE '%".addslashes(strtolower($query))."%' OR";
-			}
-			if(! is_numeric($query)){
-				$from .= " lower(order_dp) LIKE '%".addslashes(strtolower($query))."%' OR";
-			}
-			if(! is_numeric($query)){
-				$from .= " lower(order_sisa_bayar) LIKE '%".addslashes(strtolower($query))."%' OR";
-			}
-			if(! is_numeric($query)){
-				$from .= " lower(order_keterangan) LIKE '%".addslashes(strtolower($query))."%' OR";
-			}
-			if(! is_numeric($query)){
-				$from .= " lower(order_status_acc) LIKE '%".addslashes(strtolower($query))."%' OR";
-			}
-			if(! is_numeric($query)){
-				$from .= " lower(order_status) LIKE '%".addslashes(strtolower($query))."%' OR";
-			}
-			if(! is_numeric($query)){
-				$from .= " lower(order_creator) LIKE '%".addslashes(strtolower($query))."%' OR";
-			}
-			if(! is_numeric($query)){
-				$from .= " lower(order_date_create) LIKE '%".addslashes(strtolower($query))."%' OR";
-			}
-			if(! is_numeric($query)){
-				$from .= " lower(order_update) LIKE '%".addslashes(strtolower($query))."%' OR";
-			}
-			if(! is_numeric($query)){
-				$from .= " lower(order_date_update) LIKE '%".addslashes(strtolower($query))."%' OR";
-			}
-			if(! is_numeric($query)){
-				$from .= " lower(order_revised) LIKE '%".addslashes(strtolower($query))."%' OR";
-			}
-			$from = substr($from,0,strlen($from) -2);
+			$from = substr($from, 0, strrpos($from, ' '));
 			$from .= ")";
 		}
 		

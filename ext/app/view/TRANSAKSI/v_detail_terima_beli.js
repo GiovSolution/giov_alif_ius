@@ -1,11 +1,11 @@
-Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
+Ext.define('INVENT.view.TRANSAKSI.v_detail_terima_beli', {
 	extend: 'Ext.grid.Panel',
-	requires: ['INVENT.store.s_detail_order_beli'],
+	requires: ['INVENT.store.s_detail_terima_beli'],
 	
-	//title		: 'detail_order_beli',
-	itemId		: 'v_detail_order_beli',
-	alias       : 'widget.v_detail_order_beli',
-	store 		: 's_detail_order_beli',
+	//title		: 'detail_terima_beli',
+	itemId		: 'v_detail_terima_beli',
+	alias       : 'widget.v_detail_terima_beli',
+	store 		: 's_detail_terima_beli',
 	columnLines : true,
 	//frame		: true,
 	forceFit	: true,
@@ -14,14 +14,14 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 	selectedIndex: -1,
 	minHeight	: 170,
 	
-	order_status_temp: 'terbuka',
+	terima_status_temp: 'terbuka',
 	rowediting_status: 'undefined',
 	
 	initComponent: function(){
 		var me = this;
 		
-		var dorder_id_field = Ext.create('Ext.form.field.Number', {
-			allowBlank : true,
+		var dterima_id_field = Ext.create('Ext.form.field.Number', {
+			allowBlank : false,
 			maxLength: 11 /* length of column name */
 		});
 		var produk_id_field = Ext.create('Ext.form.field.ComboBox', {
@@ -54,7 +54,7 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 			forceSelection:true,
 			listeners: {
 				select: function(combo, records, e){
-					dorder_produk_nama_field.setValue(records[0].data.produk_nama);
+					dterima_produk_nama_field.setValue(records[0].data.produk_nama);
 					satuan_id_field.focus(false, true);
 				},
 				specialkey: function(field, e){
@@ -68,7 +68,7 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 				}
 			}
 		});
-		var dorder_produk_nama_field = Ext.create('Ext.form.field.Text');
+		var dterima_produk_nama_field = Ext.create('Ext.form.field.Text');
 		var satuan_id_field = Ext.create('Ext.form.field.ComboBox', {
 			store: 'INVENT.store.s_satuan',
 			queryMode: 'remote',
@@ -98,22 +98,22 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 			forceSelection:true,
 			listeners: {
 				select: function(combo, records, e){
-					dorder_satuan_nama_field.setValue(records[0].data.satuan_nama);
-					dorder_jumlah_field.focus(false, true);
+					dterima_satuan_nama_field.setValue(records[0].data.satuan_nama);
+					dterima_jumlah_field.focus(false, true);
 				},
 				specialkey: function(field, e){
 					if (e.getKey() == e.ENTER) {
 						e.stopEvent();
 						if (field.findRecordByValue(field.getValue())) {
-							dorder_jumlah_field.focus(false, true);
+							dterima_jumlah_field.focus(false, true);
 						}
 					}
 					
 				}
 			}
 		});
-		var dorder_satuan_nama_field = Ext.create('Ext.form.field.Text');
-		var dorder_jumlah_field = Ext.create('Ext.ux.form.NumericField', {
+		var dterima_satuan_nama_field = Ext.create('Ext.form.field.Text');
+		var dterima_jumlah_field = Ext.create('Ext.ux.form.NumericField', {
 			useThousandSeparator: true,
 			decimalPrecision: 0,
 			alwaysDisplayDecimals: true,
@@ -124,10 +124,10 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 			listeners: {
 				blur: function(field, e){
 					var jumlah = field.getValue();
-					var harga = dorder_harga_field.getValue();
-					var diskon = dorder_diskon_field.getValue();
+					var harga = dterima_harga_field.getValue();
+					var diskon = dterima_diskon_field.getValue();
 					var total = jumlah * harga * ((100 - diskon)/100);
-					dorder_subtotal_field.setValue(total);
+					dterima_subtotal_field.setValue(total);
 					
 				},
 				specialkey: function(field, e){
@@ -135,14 +135,14 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 						e.stopEvent();
 						field.triggerBlur();
 						field.blur();
-						dorder_harga_field.focus(false, true);
+						dterima_harga_field.focus(false, true);
 						
 					}
 					
 				}
 			}
 		});
-		var dorder_harga_field = Ext.create('Ext.ux.form.NumericField', {
+		var dterima_harga_field = Ext.create('Ext.ux.form.NumericField', {
 			useThousandSeparator: true,
 			decimalPrecision: 2,
 			alwaysDisplayDecimals: true,
@@ -152,24 +152,24 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 			readOnly: false,
 			listeners: {
 				blur: function(field, e){
-					var jumlah = dorder_jumlah_field.getValue();
+					var jumlah = dterima_jumlah_field.getValue();
 					var harga = field.getValue();
-					var diskon = dorder_diskon_field.getValue();
+					var diskon = dterima_diskon_field.getValue();
 					var total = jumlah * harga * ((100 - diskon)/100);
-					dorder_subtotal_field.setValue(total);
+					dterima_subtotal_field.setValue(total);
 				},
 				specialkey: function(field, e){
 					if (e.getKey() == e.ENTER) {
 						e.stopEvent();
 						field.triggerBlur();
 						field.blur();
-						dorder_diskon_field.focus(false, true);
+						dterima_diskon_field.focus(false, true);
 					}
 					
 				}
 			}
 		});
-		var dorder_diskon_field = Ext.create('Ext.ux.form.NumericField', {
+		var dterima_diskon_field = Ext.create('Ext.ux.form.NumericField', {
 			useThousandSeparator: true,
 			decimalPrecision: 0,
 			alwaysDisplayDecimals: true,
@@ -178,24 +178,46 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 			decimalSeparator: ',',
 			listeners: {
 				blur: function(field, e){
-					var jumlah = dorder_jumlah_field.getValue();
-					var harga = dorder_harga_field.getValue();
+					var jumlah = dterima_jumlah_field.getValue();
+					var harga = dterima_harga_field.getValue();
 					var diskon = field.getValue();
 					var total = jumlah * harga * ((100 - diskon)/100);
-					dorder_subtotal_field.setValue(total);
+					dterima_subtotal_field.setValue(total);
 				},
 				specialkey: function(field, e){
 					if (e.getKey() == e.ENTER) {
 						e.stopEvent();
 						field.triggerBlur();
 						field.blur();
-						dorder_subtotal_field.focus(false, true);
+						dterima_subtotal_field.focus(false, true);
 					}
 					
 				}
 			}
 		});
-		var dorder_subtotal_field = Ext.create('Ext.ux.form.NumericField', {
+		var dterima_no_batch_field = Ext.create('Ext.form.field.Text',{
+			listeners: {
+				specialkey: function(field, e){
+					if (e.getKey() == e.ENTER) {
+						e.stopEvent();
+						dterima_expired_date_field.focus(false, true);
+					}
+					
+				}
+			}
+		});
+		var dterima_expired_date_field = Ext.create('Ext.form.field.Date',{
+			format: 'd-M-Y',
+			allowBlank: false,
+			readOnly: false,
+			listeners: {
+				select: function(field, value, e){
+					dterima_keterangan_field.focus(false, true);
+				}
+			}
+		});
+		var dterima_keterangan_field = Ext.create('Ext.form.field.Text');
+		var dterima_subtotal_field = Ext.create('Ext.ux.form.NumericField', {
 			useThousandSeparator: true,
 			decimalPrecision: 2,
 			alwaysDisplayDecimals: true,
@@ -210,14 +232,16 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 			clicksToMoveEditor: 1,
 			listeners: {
 				'beforeedit': function(editor, e){
-					if(! (/^\s*$/).test(e.record.data.dorder_id) ){
-						dorder_id_field.setReadOnly(true);
+					if(! (/^\d+$/).test(e.record.data.dterima_id) ){
+						dterima_id_field.setReadOnly(true);
 					}else{
-						dorder_id_field.setReadOnly(false);
+						dterima_id_field.setReadOnly(false);
 					}
 					
 				},
 				'canceledit': function(editor, e){
+					//(/^\d+$/).test(value) <== is_number ?
+					//(/^\s*$/).test(value) <== is_string ?
 					me.rowediting_status = 'afterediting';
 					
 					if (! produk_id_field.findRecordByValue(produk_id_field.getValue())) {
@@ -231,88 +255,104 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 				'afteredit': function(editor, e){
 					me.rowediting_status = 'afterediting';
 					me.down('#btncreate').fireEvent('click');
+					
+					
+					var task = new Ext.util.DelayedTask(function(){
+						produk_id_field.reset();
+						dterima_produk_nama_field.reset();
+						satuan_id_field.reset();
+						dterima_satuan_nama_field.reset();
+					});
+					task.delay(200);
 					return true;
+					
 				}
 			}
 		});
 		
 		this.columns = [
 			{
-				header: 'dorder_id',
-				dataIndex: 'dorder_id',
+				header: 'dterima_id',
+				dataIndex: 'dterima_id',
 				hidden: true,
-				field: dorder_id_field
-			}/*,{
-				header: 'dorder_master',
-				dataIndex: 'dorder_master',
-				field: {xtype: 'numberfield'}
-			}*/,{
+				field: dterima_id_field
+			},{
 				header: 'Produk',
-				dataIndex: 'dorder_produk',
+				dataIndex: 'dterima_produk',
 				width: 319,
 				style: 'text-align:center',
 				renderer: function(value, metaData, record, rowIndex, colIndex, store){
 					var data = record.data;
-					return '['+data.dorder_produk+'] - '+data.dorder_produk_nama;
+					return '['+data.dterima_produk+'] - '+data.dterima_produk_nama;
 				},
 				field: produk_id_field
 			},{
 				header: 'produk_nama',
-				dataIndex: 'dorder_produk_nama',
+				dataIndex: 'dterima_produk_nama',
 				hidden: true,
-				field: dorder_produk_nama_field
+				field: dterima_produk_nama_field
 			},{
 				header: 'Satuan',
-				dataIndex: 'dorder_satuan',
-				width: 319,
+				dataIndex: 'dterima_satuan',
+				width: 120,
 				style: 'text-align:center',
 				renderer: function(value, metaData, record, rowIndex, colIndex, store){
 					var data = record.data;
-					return '['+data.dorder_satuan+'] - '+data.dorder_satuan_nama;
+					return '['+data.dterima_satuan+'] - '+data.dterima_satuan_nama;
 				},
 				field: satuan_id_field
 			},{
 				header: 'satuan_nama',
-				dataIndex: 'dorder_satuan_nama',
+				dataIndex: 'dterima_satuan_nama',
 				hidden: true,
-				field: dorder_satuan_nama_field
+				field: dterima_satuan_nama_field
 			},{
 				header: 'Jumlah',
-				dataIndex: 'dorder_jumlah',
+				dataIndex: 'dterima_jumlah',
 				align: 'right',
 				style: 'text-align:center',
-				field: dorder_jumlah_field
+				field: dterima_jumlah_field
 			},{
 				header: 'Harga(Rp)',
-				dataIndex: 'dorder_harga',
+				dataIndex: 'dterima_harga',
 				align: 'right',
 				style: 'text-align:center',
 				renderer: function(value){
 					return Ext.util.Format.currency(value, ' ', 2);
 				},
-				field: dorder_harga_field
+				field: dterima_harga_field
 			},{
 				header: 'Diskon(%)',
-				dataIndex: 'dorder_diskon',
+				dataIndex: 'dterima_diskon',
 				width: 80,
 				align: 'right',
 				style: 'text-align:center',
-				field: dorder_diskon_field
+				field: dterima_diskon_field
 			},{
-				header: 'Sub Total(Rp)',
-				dataIndex: 'dorder_subtotal',
+				header: 'No. Batch',
+				dataIndex: 'dterima_no_batch',
+				field: dterima_no_batch_field
+			},{
+				header: 'Expired Date',
+				dataIndex: 'dterima_expired_date',
+				width: 120,
+				renderer: Ext.util.Format.dateRenderer('d M, Y'),
+				field: dterima_expired_date_field
+			}/*,{
+				header: 'dterima_keterangan',
+				dataIndex: 'dterima_keterangan',
+				field: dterima_keterangan_field
+			}*/,{
+				header: 'Total(Rp)',
+				dataIndex: 'dterima_subtotal',
 				flex: 1,
 				align: 'right',
 				style: 'text-align:center',
 				renderer: function(value){
 					return Ext.util.Format.currency(value, ' ', 2);
 				},
-				field: dorder_subtotal_field
-			}/*,{
-				header: 'dorder_harga_log',
-				dataIndex: 'dorder_harga_log',
-				field: {xtype: 'textfield'}
-			}*/];
+				field: dterima_subtotal_field
+			}];
 		this.plugins = [this.rowEditing];
 		this.dockedItems = [
 			Ext.create('Ext.toolbar.Toolbar', {
@@ -360,7 +400,7 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 			})/*,
 			{
 				xtype: 'pagingtoolbar',
-				store: 's_detail_order_beli',
+				store: 's_detail_terima_beli',
 				dock: 'bottom',
 				displayInfo: true
 			}*/

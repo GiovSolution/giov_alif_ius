@@ -46,9 +46,12 @@ Ext.application({
         'Main'
 		/*MASTER*/
 		,'SUPPLIER'
+		,'GUDANG'
 		/*TRANSAKSI*/
 		,'MASTER_ORDER_BELI'
 		,'DETAIL_ORDER_BELI'
+		,'MASTER_TERIMA_BELI'
+		,'DETAIL_TERIMA_BELI'
     ],
 
     autoCreateViewport: true,
