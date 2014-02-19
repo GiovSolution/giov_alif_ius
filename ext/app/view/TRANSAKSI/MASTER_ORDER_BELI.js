@@ -4,7 +4,7 @@ Ext.define('INVENT.view.TRANSAKSI.MASTER_ORDER_BELI', {
 	
 	alias		: 'widget.MASTER_ORDER_BELI',
 	
-	title		: 'master_order_beli',
+	title		: 'Order Pembelian',
 	margins		: 0,
 	tabPosition	: 'right',
 	activeTab	: 0,

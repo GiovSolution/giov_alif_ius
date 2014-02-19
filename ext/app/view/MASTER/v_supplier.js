@@ -20,7 +20,12 @@ Ext.define('INVENT.view.MASTER.v_supplier', {
 				hidden: true
 			},{
 				header: 'Cabang',
-				dataIndex: 'supplier_cabang'
+				dataIndex: 'supplier_cabang',
+				width: 160,
+				renderer: function(value, metaData, record){
+					var data = record.data;
+					return '['+data.supplier_cabang+'] - '+data.supplier_cabang_nama;
+				}
 			},{
 				header: 'Nama',
 				dataIndex: 'supplier_nama'

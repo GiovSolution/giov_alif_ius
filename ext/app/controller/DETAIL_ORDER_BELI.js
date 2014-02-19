@@ -80,6 +80,7 @@ Ext.define('INVENT.controller.DETAIL_ORDER_BELI',{
 	createRecord: function(){
 		var getV_detail_order_beli = this.getV_detail_order_beli();
 		getV_detail_order_beli.columns[1].field.reset();
+		getV_detail_order_beli.columns[2].field.reset();
 		var model		= Ext.ModelMgr.getModel('INVENT.model.m_detail_order_beli');
 		var r = Ext.ModelManager.create({
 			dorder_id: 0,

@@ -31,9 +31,11 @@ class M_supplier extends CI_Model{
 			,supplier_contact_cp,supplier_akun,supplier_keterangan
 			,IF(supplier_aktif = 'Aktif', 1, 0) AS supplier_aktif
 			,supplier_creator,supplier_date_create,supplier_update,supplier_date_update
-			,supplier_revised";
+			,supplier_revised
+			,cabang_nama AS supplier_cabang_nama";
 		$selecttotal	= "SELECT COUNT(*) AS total";
-		$from			= " FROM supplier";
+		$from			= " FROM supplier
+			LEFT JOIN cabang ON(cabang.cabang_id = supplier.supplier_cabang)";
 		$orderby		= " ORDER BY supplier_id ASC";
 		$limit 			= " LIMIT ".$start.",".$limit;
 		

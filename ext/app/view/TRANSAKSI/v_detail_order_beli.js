@@ -55,13 +55,25 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 			listeners: {
 				select: function(combo, records, e){
 					dorder_produk_nama_field.setValue(records[0].data.produk_nama);
-					satuan_id_field.focus(false, true);
+					
+					satuan_id_field.getStore().getProxy().extraParams.query = records[0].data.produk_satuan;
+					satuan_id_field.getStore().load({
+						scope: this,
+						callback: function(recordsSatuan, operation, success) {
+							if (success) {
+								satuan_id_field.setValue(recordsSatuan[0].data.satuan_id);
+								dorder_satuan_nama_field.setValue(recordsSatuan[0].data.satuan_nama);
+							}
+						}
+					});
+					
+					dorder_jumlah_field.focus(false, true);
 				},
 				specialkey: function(field, e){
 					if (e.getKey() == e.ENTER) {
 						e.stopEvent();
 						if (field.findRecordByValue(field.getValue())) {
-							satuan_id_field.focus(false, true);
+							dorder_jumlah_field.focus(false, true);
 						}
 					}
 					
@@ -96,6 +108,8 @@ Ext.define('INVENT.view.TRANSAKSI.v_detail_order_beli', {
 			listClass: 'x-combo-list-small',
 			anchor:'100%',
 			forceSelection:true,
+			readOnly: true,
+			editable: false,
 			listeners: {
 				select: function(combo, records, e){
 					dorder_satuan_nama_field.setValue(records[0].data.satuan_nama);

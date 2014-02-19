@@ -100,77 +100,77 @@ Ext.define('INVENT.view.MASTER.v_supplier_form', {
 		});
 		var supplier_nama_field = Ext.create('Ext.form.field.Text', {
 			name: 'supplier_nama', /* column name of table */
-			fieldLabel: 'supplier_nama',
+			fieldLabel: 'Nama',
 			maxLength: 250 /* length of column name */
 		});
 		var supplier_alamat_field = Ext.create('Ext.form.field.Text', {
 			name: 'supplier_alamat', /* column name of table */
-			fieldLabel: 'supplier_alamat',
+			fieldLabel: 'Alamat',
 			maxLength: 250 /* length of column name */
 		});
 		var supplier_kota_field = Ext.create('Ext.form.field.Text', {
 			name: 'supplier_kota', /* column name of table */
-			fieldLabel: 'supplier_kota',
+			fieldLabel: 'Kota',
 			maxLength: 250 /* length of column name */
 		});
 		var supplier_kodepos_field = Ext.create('Ext.form.field.Text', {
 			name: 'supplier_kodepos', /* column name of table */
-			fieldLabel: 'supplier_kodepos',
+			fieldLabel: 'Kode Pos',
 			maxLength: 5 /* length of column name */
 		});
 		var supplier_propinsi_field = Ext.create('Ext.form.field.Text', {
 			name: 'supplier_propinsi', /* column name of table */
-			fieldLabel: 'supplier_propinsi',
+			fieldLabel: 'Propinsi',
 			maxLength: 250 /* length of column name */
 		});
 		var supplier_negara_field = Ext.create('Ext.form.field.Text', {
 			name: 'supplier_negara', /* column name of table */
-			fieldLabel: 'supplier_negara',
+			fieldLabel: 'Negara',
 			maxLength: 250 /* length of column name */
 		});
 		var supplier_notelp_field = Ext.create('Ext.form.field.Text', {
 			name: 'supplier_notelp', /* column name of table */
-			fieldLabel: 'supplier_notelp',
+			fieldLabel: 'No. Telp',
 			maxLength: 25 /* length of column name */
 		});
 		var supplier_notelp2_field = Ext.create('Ext.form.field.Text', {
 			name: 'supplier_notelp2', /* column name of table */
-			fieldLabel: 'supplier_notelp2',
+			fieldLabel: 'No. Telp2',
 			maxLength: 25 /* length of column name */
 		});
 		var supplier_nofax_field = Ext.create('Ext.form.field.Text', {
 			name: 'supplier_nofax', /* column name of table */
-			fieldLabel: 'supplier_nofax',
+			fieldLabel: 'No. Fax',
 			maxLength: 25 /* length of column name */
 		});
 		var supplier_email_field = Ext.create('Ext.form.field.Text', {
 			name: 'supplier_email', /* column name of table */
-			fieldLabel: 'supplier_email',
+			fieldLabel: 'Email',
 			maxLength: 100 /* length of column name */
 		});
 		var supplier_website_field = Ext.create('Ext.form.field.Text', {
 			name: 'supplier_website', /* column name of table */
-			fieldLabel: 'supplier_website',
+			fieldLabel: 'Website',
 			maxLength: 100 /* length of column name */
 		});
 		var supplier_cp_field = Ext.create('Ext.form.field.Text', {
 			name: 'supplier_cp', /* column name of table */
-			fieldLabel: 'supplier_cp',
+			fieldLabel: 'CP',
 			maxLength: 250 /* length of column name */
 		});
 		var supplier_contact_cp_field = Ext.create('Ext.form.field.Text', {
 			name: 'supplier_contact_cp', /* column name of table */
-			fieldLabel: 'supplier_contact_cp',
+			fieldLabel: 'No. CP',
 			maxLength: 25 /* length of column name */
 		});
 		var supplier_akun_field = Ext.create('Ext.form.field.Text', {
 			name: 'supplier_akun', /* column name of table */
-			fieldLabel: 'supplier_akun',
+			fieldLabel: 'Akun',
 			maxLength: 11 /* length of column name */
 		});
 		var supplier_keterangan_field = Ext.create('Ext.form.field.Text', {
 			name: 'supplier_keterangan', /* column name of table */
-			fieldLabel: 'supplier_keterangan',
+			fieldLabel: 'Keterangan',
 			maxLength: 500 /* length of column name */
 		});
 		var supplier_aktif_field = Ext.create('Ext.form.RadioGroup', {
